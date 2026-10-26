@@ -172,7 +172,7 @@ const CashierPage = () => {
 
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-7rem)]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-auto lg:h-[calc(100vh-4rem)]">
         {/* Left Side: Product Catalog Picker (7 Cols) */}
         <div className="lg:col-span-7 flex flex-col bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
           {/* Catalog Search Header */}
@@ -213,11 +213,10 @@ const CashierPage = () => {
                       type="button"
                       disabled={isOutOfStock}
                       onClick={() => addToCart(product)}
-                      className={`text-left p-3.5 rounded-2xl border transition-all flex flex-col justify-between ${
-                        isOutOfStock
+                      className={`text-left p-3.5 rounded-2xl border transition-all flex flex-col justify-between ${isOutOfStock
                           ? 'bg-slate-100 border-slate-200 opacity-60 cursor-not-allowed'
                           : 'bg-white hover:bg-brand-50/50 border-slate-200 hover:border-brand-300 hover:shadow-md active:scale-95'
-                      }`}
+                        }`}
                     >
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
@@ -225,13 +224,12 @@ const CashierPage = () => {
                             {product.sku}
                           </span>
                           <span
-                            className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                              product.stock > 10
+                            className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${product.stock > 10
                                 ? 'bg-green-100 text-green-800'
                                 : product.stock > 0
-                                ? 'bg-amber-100 text-amber-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}
+                                  ? 'bg-amber-100 text-amber-800'
+                                  : 'bg-red-100 text-red-800'
+                              }`}
                           >
                             Stok: {product.stock}
                           </span>
@@ -416,9 +414,8 @@ const CashierPage = () => {
             <div className="flex items-center justify-between text-xs py-1">
               <span className="font-semibold text-slate-600">Uang Kembalian:</span>
               <span
-                className={`font-black ${
-                  changeReturned >= 0 ? 'text-slate-900' : 'text-red-600'
-                }`}
+                className={`font-black ${changeReturned >= 0 ? 'text-slate-900' : 'text-red-600'
+                  }`}
               >
                 {changeReturned >= 0 ? formatRupiah(changeReturned) : `Kurang ${formatRupiah(Math.abs(changeReturned))}`}
               </span>

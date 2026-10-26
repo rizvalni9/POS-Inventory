@@ -18,14 +18,16 @@ import UsersManagementPage from './pages/UsersManagementPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import NotFoundPage from './pages/NotFoundPage';
 
-// Layout with Navbar and Container
+// Layout with Sidebar and Container
 const AppLayout = () => {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
       <Navbar />
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-        <Outlet />
-      </main>
+      <div className="flex-1 flex flex-col min-w-0">
+        <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 };
@@ -60,9 +62,13 @@ const App = () => {
       <Route
         path="/unauthorized"
         element={
-          <div className="min-h-screen bg-slate-50 flex flex-col">
+          <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
             <Navbar />
-            <UnauthorizedPage />
+            <div className="flex-1 flex flex-col min-w-0">
+              <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex items-center justify-center">
+                <UnauthorizedPage />
+              </main>
+            </div>
           </div>
         }
       />
