@@ -1,14 +1,27 @@
+// ==============================================================================
+// FILE: middlewares/auth.js
+// DESKRIPSI: Middleware keamanan untuk:
+// 1. Memeriksa apakah pengguna sudah login dengan membawa token JWT yang sah (authenticateToken).
+// 2. Memeriksa apakah pengguna memiliki hak akses (role) yang diizinkan (authorizeRoles).
+// ==============================================================================
+
 const { verifyAccessToken } = require('../utils/jwt');
 const { User } = require('../models');
 
 /**
- * Middleware: Verify JWT Access Token and check if account is active
+ * Middleware: authenticateToken
+ * Fungsi ini bertugas memeriksa token pada setiap request yang butuh login.
  */
 async function authenticateToken(req, res, next) {
   try {
+    // LANGKAH 1: Ambil data header 'Authorization' yang dikirim oleh frontend
     const authHeader = req.headers['authorization'];
+    
+    // Format standar token adalah: "Bearer <token_panjang_disini>"
+    // Kita ambil bagian string token-nya saja setelah kata "Bearer "
     const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
 
+    // Jika tidak ada token yang dilampirkan, tolak akses seketika
     if (!token) {
       return res.status(401).json({
         success: false,
@@ -16,10 +29,13 @@ async function authenticateToken(req, res, next) {
       });
     }
 
+    // LANGKAH 2: Verifikasi keaslian token JWT menggunakan secret key kita
     let decoded;
     try {
       decoded = verifyAccessToken(token);
     } catch (jwtErr) {
+      // Jika token sudah lewat dari 15 menit, kirim kode khusus TOKEN_EXPIRED
+      // agar frontend Axios tahu harus meminta token baru secara otomatis (silent refresh)
       if (jwtErr.name === 'TokenExpiredError') {
         return res.status(401).json({
           success: false,
@@ -27,6 +43,8 @@ async function authenticateToken(req, res, next) {
           message: 'Sesi akses Anda telah kedaluwarsa. Silakan perbarui sesi.'
         });
       }
+      
+      // Jika token dirusak atau diubah sembarangan
       return res.status(401).json({
         success: false,
         code: 'TOKEN_INVALID',
@@ -34,7 +52,7 @@ async function authenticateToken(req, res, next) {
       });
     }
 
-    // Verify user in database to ensure the account has not been deactivated or deleted
+    // LANGKAH 3: Cek ke database MySQL untuk memastikan user masih ada dan aktif
     const user = await User.findByPk(decoded.id);
 
     if (!user) {
@@ -44,6 +62,7 @@ async function authenticateToken(req, res, next) {
       });
     }
 
+    // Jika akun pengguna telah dinonaktifkan oleh pemilik toko
     if (!user.is_active) {
       return res.status(403).json({
         success: false,
@@ -52,24 +71,29 @@ async function authenticateToken(req, res, next) {
       });
     }
 
-    // Attach verified user to request
+    // LANGKAH 4: Simpan data user ke dalam objek req.user
+    // Dengan ini, controller berikutnya bisa tahu siapa yang sedang login (req.user.id, req.user.role)
     req.user = user;
+
+    // Lanjutkan request ke controller berikutnya
     next();
   } catch (error) {
     console.error('[Auth Middleware Error]:', error);
     return res.status(500).json({
       success: false,
-      message: 'Terjadi kesalahan saat memverifikasi sesi autentikasi.'
+      message: 'Terjadi kesalahan sistem saat memverifikasi sesi autentikasi.'
     });
   }
 }
 
 /**
- * Middleware: Authorize specific roles (Deny-by-default RBAC)
- * @param  {...string} allowedRoles e.g. 'owner', 'cashier'
+ * Middleware: authorizeRoles
+ * Memeriksa apakah role pengguna (misal: 'owner' atau 'cashier') boleh mengakses halaman/API ini.
+ * Contoh pemakaian: authorizeRoles('owner') -> hanya owner yang boleh lewat.
  */
 function authorizeRoles(...allowedRoles) {
   return (req, res, next) => {
+    // Pastikan user sudah lewat dari authenticateToken dulu
     if (!req.user) {
       return res.status(401).json({
         success: false,
@@ -77,6 +101,7 @@ function authorizeRoles(...allowedRoles) {
       });
     }
 
+    // Cek apakah peran user ada di dalam daftar yang diizinkan
     if (!allowedRoles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
@@ -84,6 +109,7 @@ function authorizeRoles(...allowedRoles) {
       });
     }
 
+    // Jika diizinkan, lanjut ke fungsi selanjutnya
     next();
   };
 }

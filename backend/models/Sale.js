@@ -26,6 +26,32 @@ Sale.init(
         key: 'id'
       }
     },
+    member_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'members',
+        key: 'id'
+      }
+    },
+    subtotal_amount: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        isInt: { msg: 'Subtotal belanja harus berupa bilangan bulat' },
+        min: { args: [0], msg: 'Subtotal belanja minimal 0' }
+      }
+    },
+    discount_amount: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        isInt: { msg: 'Diskon harus berupa bilangan bulat' },
+        min: { args: [0], msg: 'Diskon minimal 0' }
+      }
+    },
     total_amount: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
@@ -33,6 +59,16 @@ Sale.init(
         isInt: { msg: 'Total belanja harus berupa bilangan bulat' },
         min: { args: [0], msg: 'Total belanja minimal 0' }
       }
+    },
+    points_earned: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: false,
+      defaultValue: 0
+    },
+    points_redeemed: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: false,
+      defaultValue: 0
     },
     cash_paid: {
       type: DataTypes.INTEGER.UNSIGNED,

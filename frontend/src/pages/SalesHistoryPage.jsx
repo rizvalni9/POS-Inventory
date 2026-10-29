@@ -132,7 +132,15 @@ const SalesHistoryPage = () => {
                 sales.map((sale) => (
                   <tr key={sale.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-6 py-4 font-mono font-bold text-slate-900">
-                      {sale.invoice_number}
+                      <div>{sale.invoice_number}</div>
+                      {sale.member && (
+                        <div className="font-sans text-[11px] font-semibold text-brand-700 flex items-center space-x-1 mt-0.5">
+                          <span className="px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 text-[9px] font-bold">
+                            {sale.member.tier}
+                          </span>
+                          <span>{sale.member.name}</span>
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-slate-500 whitespace-nowrap">
                       {new Date(sale.transaction_date).toLocaleString('id-ID', {

@@ -1,15 +1,25 @@
+// ==============================================================================
+// FILE: controllers/stockMovementController.js
+// DESKRIPSI: Pengendali pencatatan barang masuk (Stok Masuk).
+// Setiap penambahan stok toko WAJIB dicatat di sini sebagai bukti riwayat (audit trail).
+// ==============================================================================
+
 const { sequelize, Product, StockMovement, User } = require('../models');
 
 /**
- * Controller: Record stock in (Owner only)
+ * Controller: createStockIn
  * POST /api/stock-movements
+ * Dapat diakses oleh: Owner saja
+ * Menambah stok fisik barang dan mencatat siapa yang memasukkan barang tersebut.
  */
 async function createStockIn(req, res, next) {
+  // Buka transaksi database agar aman jika terjadi kendala di tengah proses
   const transaction = await sequelize.transaction();
 
   try {
     const { product_id, quantity, reference_number, notes } = req.body;
 
+    // LANGKAH 1: Validasi form input
     if (!product_id || quantity === undefined) {
       await transaction.rollback();
       return res.status(400).json({
@@ -27,7 +37,7 @@ async function createStockIn(req, res, next) {
       });
     }
 
-    // Lock product row to prevent concurrency race conditions
+    // LANGKAH 2: Cari produk dan kunci barisnya di database (Row Lock)
     const product = await Product.findByPk(product_id, {
       lock: transaction.LOCK.UPDATE,
       transaction
@@ -37,27 +47,28 @@ async function createStockIn(req, res, next) {
       await transaction.rollback();
       return res.status(404).json({
         success: false,
-        message: 'Produk tidak ditemukan.'
+        message: 'Produk tidak ditemukan di database.'
       });
     }
 
-    // Atomic update on stock
+    // LANGKAH 3: Tambah stok produk di tabel products
     product.stock += parsedQty;
     await product.save({ transaction });
 
-    // Record audit movement
+    // LANGKAH 4: Catat riwayat mutasi ke tabel stock_movements
     const movement = await StockMovement.create(
       {
         product_id: product.id,
         quantity: parsedQty,
-        type: 'in',
-        reference_number: reference_number ? String(reference_number).trim() : null,
-        notes: notes ? String(notes).trim() : null,
-        created_by_user_id: req.user.id
+        type: 'in', // Jenis 'in' = stok masuk
+        reference_number: reference_number ? String(reference_number).trim() : null, // Nomor faktur/surat jalan
+        notes: notes ? String(notes).trim() : null, // Catatan tambahan
+        created_by_user_id: req.user.id // ID pemilik yang memasukkan barang
       },
       { transaction }
     );
 
+    // LANGKAH 5: Simpan permanen transaksi
     await transaction.commit();
 
     return res.status(201).json({
@@ -69,24 +80,29 @@ async function createStockIn(req, res, next) {
       }
     });
   } catch (error) {
+    // Jika ada error, batalkan transaksi
     await transaction.rollback();
     next(error);
   }
 }
 
 /**
- * Controller: Get stock movements history (Owner only)
+ * Controller: getStockMovements
  * GET /api/stock-movements
+ * Dapat diakses oleh: Owner saja
+ * Melihat seluruh riwayat barang masuk dari waktu ke waktu.
  */
 async function getStockMovements(req, res, next) {
   try {
     const { product_id } = req.query;
     const whereClause = {};
 
+    // Jika ingin memfilter riwayat untuk satu produk tertentu saja
     if (product_id) {
       whereClause.product_id = Number(product_id);
     }
 
+    // Ambil data mutasi dan gabungkan (JOIN) dengan tabel Product dan User pembuatnya
     const movements = await StockMovement.findAll({
       where: whereClause,
       include: [

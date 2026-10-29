@@ -2,7 +2,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const { sequelize, testAndInitDb } = require('../config/database');
-const { User, BusinessProfile, Product, StockMovement } = require('../models');
+const { User, BusinessProfile, Product, StockMovement, Member, MemberPointHistory } = require('../models');
 
 async function runSeed() {
   try {
@@ -89,6 +89,60 @@ async function runSeed() {
           created_by_user_id: owner.id
         });
         console.log(`  -> Created product: ${item.name} (${item.sku}) with stock ${item.initialStock}`);
+      }
+    }
+
+    console.log('[Seed] Seeding Initial Loyalty Members...');
+    const sampleMembers = [
+      {
+        member_code: 'MBR-2026-001',
+        name: 'Andi Pratama',
+        phone: '081234567890',
+        email: 'andi.pratama@gmail.com',
+        address: 'Jl. Ahmad Yani No. 45, Padang',
+        tier: 'Gold',
+        points: 150,
+        total_spent: 5500000,
+        notes: 'Pelanggan setia mingguan'
+      },
+      {
+        member_code: 'MBR-2026-002',
+        name: 'Dewi Lestari',
+        phone: '081398765432',
+        email: 'dewi.lestari@yahoo.com',
+        address: 'Jl. Veteran No. 12, Padang',
+        tier: 'Silver',
+        points: 60,
+        total_spent: 1850000,
+        notes: 'Sering belanja sembako'
+      },
+      {
+        member_code: 'MBR-2026-003',
+        name: 'Rudi Hermawan',
+        phone: '082155667788',
+        email: 'rudi.h@gmail.com',
+        address: 'Komp. Jati Permai Blok B2',
+        tier: 'Bronze',
+        points: 20,
+        total_spent: 350000,
+        notes: 'Member baru mendaftar'
+      }
+    ];
+
+    for (const mData of sampleMembers) {
+      let member = await Member.findOne({ where: { member_code: mData.member_code } });
+      if (!member) {
+        member = await Member.create(mData);
+        // Create initial bonus point audit history
+        await MemberPointHistory.create({
+          member_id: member.id,
+          type: 'BONUS',
+          points: mData.points,
+          balance_after: mData.points,
+          description: 'Bonus pendaftaran member perdana',
+          created_by_user_id: owner.id
+        });
+        console.log(`  -> Created Loyalty Member: ${member.name} (${member.member_code}) Tier: ${member.tier}, Poin: ${member.points}`);
       }
     }
 

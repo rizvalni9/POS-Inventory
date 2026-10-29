@@ -1,34 +1,50 @@
+// ==============================================================================
+// FILE: frontend/src/contexts/AuthContext.jsx
+// DESKRIPSI: Tempat penyimpanan (State Global) status login dan informasi user.
+// Dengan React Context, komponen mana saja di aplikasi bisa mengetahui:
+// - Siapa yang sedang login (user)
+// - Apa peran akunnya (role: 'owner' atau 'cashier')
+// - Memanggil fungsi login, logout, atau cek hak akses (hasRole)
+// ==============================================================================
+
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import apiClient, { setAccessToken, clearAccessToken } from '../api/axios';
 
+// Membuat objek context
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
+  // State data user yang sedang login (null jika belum login)
   const [user, setUser] = useState(null);
+  
+  // State penanda apakah aplikasi sedang memeriksa sesi awal (saat F5 / refresh halaman)
   const [isInitializing, setIsInitializing] = useState(true);
 
-  // Initialize session on page load / browser refresh
+  // Fungsi inisialisasi: memeriksa apakah browser memiliki cookie sesi aktif
   const initializeAuth = useCallback(async () => {
     try {
-      // Attempt silent refresh using HttpOnly cookie
+      // Coba panggil silent refresh ke backend
       const res = await apiClient.post('/auth/refresh');
       if (res.data?.success && res.data?.data) {
+        // Jika cookie valid, simpan token baru dan data user
         setAccessToken(res.data.data.token);
         setUser(res.data.data.user);
       }
     } catch (err) {
-      // Unauthenticated or expired session on initial load is expected
+      // Jika belum login atau sesi habis, kosongkan token
       clearAccessToken();
       setUser(null);
     } finally {
+      // Selesai memeriksa sesi awal
       setIsInitializing(false);
     }
   }, []);
 
   useEffect(() => {
+    // Jalankan pemeriksaan sesi saat pertama kali website dibuka
     initializeAuth();
 
-    // Listen for session expiry event dispatched by Axios interceptor
+    // Dengarkan event 'auth:session-expired' jika sewaktu-waktu sesi habis di tengah jalan
     const handleSessionExpired = () => {
       setUser(null);
       clearAccessToken();
@@ -40,7 +56,7 @@ export const AuthProvider = ({ children }) => {
     };
   }, [initializeAuth]);
 
-  // Login handler
+  // Fungsi untuk login
   const login = async (username, password) => {
     const res = await apiClient.post('/auth/login', { username, password });
     if (res.data?.success && res.data?.data) {
@@ -50,7 +66,7 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
-  // Logout handler
+  // Fungsi untuk logout
   const logout = async () => {
     try {
       await apiClient.post('/auth/logout');
@@ -62,13 +78,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Check if current user has one of the allowed roles
+  // Fungsi pembantu untuk mengecek apakah user memiliki role tertentu
   const hasRole = (allowedRoles) => {
     if (!user) return false;
     if (!Array.isArray(allowedRoles)) return user.role === allowedRoles;
     return allowedRoles.includes(user.role);
   };
 
+  // Nilai-nilai yang dibagikan ke seluruh komponen anak
   const value = {
     user,
     role: user?.role || null,
@@ -87,10 +104,11 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// Custom hook agar komponen lain cukup memanggil: const { user, role, logout } = useAuth();
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth harus digunakan di dalam komponen AuthProvider!');
   }
   return context;
 };

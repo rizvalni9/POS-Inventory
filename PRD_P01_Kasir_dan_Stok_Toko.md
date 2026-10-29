@@ -23,14 +23,16 @@ Banyak toko kecil/kelontong (single outlet, single location) menghadapi permasal
 2. **Perhitungan Kasir Rawan Salah**: Kasir manual mengandalkan kalkulator fisik yang rawan kesalahan hitung kembalian dan total belanja.
 3. **Ketiadaan Bukti Transaksi Resmi**: Pelanggan tidak menerima nota cetak yang jelas, serta kesulitan melacak histori penjualan masa lalu.
 4. **Rekapitulasi Kas Harian Manual**: Pemilik toko harus meluangkan waktu berjam-jam tiap malam menghitung fisik uang dan nota kertas untuk mengetahui omset hari itu.
+5. **Rendahnya Retensi Pelanggan**: Toko konvensional tidak memiliki sistem keanggotaan dan apresiasi loyalitas belanja berulang, sehingga pelanggan mudah berpindah ke minimarket berjejaring besar.
 
 ### 1.2 Solusi Produk
-Aplikasi **P01 • Kasir dan Stok Toko** adalah sistem POS (Point of Sale) & Inventaris berbasis Web terpadu, dirancang khusus untuk toko kecil dengan skema penjualan barang satuan, satu lokasi usaha, dan transaksi tunai (cash).
+Aplikasi **P01 • Kasir, Manajemen Stok Toko & Loyalty Member** adalah sistem POS (Point of Sale), Inventaris, dan Retensi Pelanggan berbasis Web terpadu, dirancang untuk toko ritel dengan skema penjualan barang satuan, transaksi tunai (*cash*), dan program loyalitas pelanggan bertingkat (*Tier-based loyalty*).
 
-Aplikasi ini mengedepankan **integritas data finansial dan pergerakan stok**, di mana:
+Aplikasi ini mengedepankan **integritas data finansial, pergerakan stok, dan keamanan audit poin**, di mana:
 - Stok tidak dapat dimanipulasi manual di luar transaksi resmi.
-- Perhitungan transaksi dilakukan secara ketat di sisi server (*server-side calculation*).
-- Transaksi penjualan dan pemotongan stok dieksekusi secara atomik (*database transaction ACID*) guna mencegah selisih stok dan transaksi ganda.
+- Perhitungan transaksi dan perolehan/penukaran poin dilakukan secara ketat di sisi server (*server-side calculation*).
+- Transaksi penjualan, pemotongan stok, dan mutasi poin dieksekusi secara atomik (*database transaction ACID*) guna mencegah selisih stok dan manipulasi poin.
+- Setiap pergerakan poin tersimpan permanen dalam buku audit (*immutable audit trail*).
 
 ---
 
@@ -80,6 +82,12 @@ Aplikasi memiliki 2 (dua) peran pengguna dengan batasan hak akses yang ditegakka
 | **Cetak Nota Transaksi** | ✅ Ya | ✅ Ya | Cetak via browser print |
 | **Lihat Riwayat Penjualan**| ✅ Ya | ✅ Terbatas | Kasir hanya riwayat hari berjalan |
 | **Lihat Rekap Harian** | ✅ Ya | ❌ Ditolak | Total omset & ringkasan uang tunai |
+| **Cari & Lihat Member** | ✅ Ya | ✅ Ya | Autocomplete nama, nomor HP, dan kode kartu |
+| **Daftar Member Baru** | ✅ Ya | ✅ Ya | Pendaftaran cepat langsung di loket kasir / halaman member |
+| **Tukar Poin Diskon Kasir**| ✅ Ya | ✅ Ya | 1 Poin = Rp 100 diskon tunai langsung |
+| **Penyesuaian Poin Manual** | ✅ Ya | ❌ Ditolak | Hanya Owner dengan alasan audit wajib (Pessimistic Lock) |
+| **Ubah Status / Tier Member**| ✅ Ya | ❌ Ditolak | Wewenang pengaturan status/level dipegang Owner |
+| **Hapus / Arsipkan Member** | ✅ Ya | ❌ Ditolak | Soft-archive (diarsipkan) jika sudah punya riwayat belanja |
 
 ---
 
@@ -96,17 +104,22 @@ Alur operasional utama P01 mengikuti diagram sekuensial berikut:
       ▼
 [Modul Kasir] ──▶ Tambah Item ke Keranjang ──▶ Validasi Kuantitas vs Stok
       │
-      ▼
+      ├─────────────────▶ [Cari / Pasang Member Pelanggan]
+      │                         │
+      │                         ▼
+      │                   [Opsi Tukar Poin (Redeem)] ──▶ Diskon 1 Pts = Rp 100
+      │                         │
+      ▼                         ▼
 [Pembayaran Tunai] ──▶ Input Uang Diterima ──▶ Hitung Kembalian (Server-side)
       │
       ▼
 [Simpan Checkout Atomik] ──▶ [Insert Sale & SaleItems] + [Kurangi Stok Product]
+      │                        + [Mutasi Poin: Redeem & Earn] + [Auto Tier Progression]
+      ▼
+[Cetak Nota Browser] ──▶ Nota Transaksi + Sisa Saldo Poin Diserahkan ke Pelanggan
       │
       ▼
-[Cetak Nota Browser] ──▶ Nota Transaksi Diserahkan ke Pelanggan
-      │
-      ▼
-[Rekap Harian & Dashboard] ──▶ Pemilik Memverifikasi Total Kas Masuk Harian
+[Rekap Harian & Dashboard] ──▶ Pemilik Memverifikasi Total Kas & Liabilitas Poin
 ```
 
 ---
@@ -148,6 +161,27 @@ Berikut adalah aturan bisnis mutlak (*non-negotiable business rules*) yang harus
 
 7. **Zona Waktu Tunggal**:
    - Semua pencatatan waktu transaksi menggunakan acuan zona waktu Indonesia Barat (`Asia/Jakarta` / UTC+7).
+
+8. **Valuasi & Penukaran Poin Loyalty (1 Poin = Rp 100)**:
+   - Setiap 1 Poin member memiliki nilai tetap sebesar **Rp 100** diskon langsung (`discountAmount = pointsToRedeem * 100`).
+   - Penukaran poin maksimal sebesar subtotal belanja (`discountAmount <= subtotal`).
+   - Poin yang ditukar langsung dipotong secara transaksional dari saldo aktif member dan dicatat permanen pada tabel `member_point_histories` dengan tipe `REDEEM`.
+
+9. **Perolehan Poin (Earn Rate) & Pengali Level Tier Otomatis**:
+   - Poin baru dihitung dari nilai belanja bersih setelah potongan diskon poin (`finalTotal = subtotal - discountAmount`).
+   - Formula perolehan poin: `Math.floor((finalTotal / 10000) * multiplier)`.
+   - Rasio pengali (*multiplier*) ditentukan oleh level tier akumulasi belanja seumur hidup (`total_spent`):
+     - **Bronze** (`total_spent < Rp 1.000.000`): Pengali **1.0x** (1 Pts per Rp 10.000).
+     - **Silver** (`total_spent >= Rp 1.000.000`): Pengali **1.2x** (1.2 Pts per Rp 10.000).
+     - **Gold** (`total_spent >= Rp 5.000.000`): Pengali **1.5x** (1.5 Pts per Rp 10.000).
+     - **Platinum** (`total_spent >= Rp 15.000.000`): Pengali **2.0x** (2.0 Pts per Rp 10.000).
+   - Evaluasi kenaikan tier dilakukan otomatis (*auto-tier upgrade*) begitu nilai `total_spent` bertambah dan melampaui ambang batas tier berikutnya.
+
+10. **Integritas Transaksional, Pessimistic Locking & Audit Trail Mutasi Poin**:
+    - Penyesuaian poin manual oleh Owner (`ADJUSTMENT`) wajib menggunakan transaksi database dengan Pessimistic Locking (`transaction.LOCK.UPDATE`) untuk mencegah benturan data dengan transaksi kasir yang berlangsung bersamaan.
+    - Setiap penyesuaian manual wajib menyertakan alasan tertulis (*audit reason*) minimal 4 karakter.
+    - Seluruh mutasi saldo poin (`EARN`, `REDEEM`, `BONUS`, `ADJUSTMENT`) bersifat *immutable* (tidak dapat diedit maupun dihapus), membentuk buku besar audit (*ledger*) yang akurat.
+    - Member yang sudah memiliki riwayat transaksi dilindungi dari penghapusan fisik (*hard delete* ditolak) dan dialihkan ke status non-aktif (`is_active = false`) demi menjaga integritas data riwayat nota.
 
 ---
 
@@ -215,6 +249,24 @@ Berikut adalah aturan bisnis mutlak (*non-negotiable business rules*) yang harus
   - Total Kuantitas Barang Terjual Hari Ini.
   - Tabel ringkasan pergerakan uang per tanggal.
 
+### 6.7 Modul 7: Loyalty Member & Program Poin Pelanggan
+- **FR-MBR-01**: Kasir dan Pemilik dapat mendaftarkan member baru dengan atribut: Nama Pelanggan, Nomor Telepon/WhatsApp (unik), Email (opsional), dan Alamat (opsional). Sistem menghasilkan Kode Member unik otomatis (`MBR-YYYYMMDD-XXXX`), saldo poin awal 0 (atau bonus registrasi), dan tier awal `Bronze`.
+- **FR-MBR-02**: Kasir dan Pemilik dapat melakukan pencarian data member secara instan (*debounced search*) berdasarkan nama, nomor telepon, atau kode member.
+- **FR-MBR-03**: Kasir dapat memilih dan menghubungkan data member aktif ke dalam keranjang transaksi belanja kasir POS (*customer attachment*).
+- **FR-MBR-04**: Kasir dapat mengaktifkan opsi penukaran poin (*redeem points*) untuk memotong total tagihan belanja, di mana setiap 1 Poin bernilai diskon tunai langsung sebesar **Rp 100**.
+- **FR-MBR-05**: Sistem memvalidasi bahwa poin yang ditukarkan tidak melebihi sisa saldo poin aktif member dan nilai nominal diskon tidak melebihi subtotal belanja (`discount_amount <= subtotal`).
+- **FR-MBR-06**: Sistem menghitung perolehan poin baru secara otomatis berdasarkan nilai belanja bersih setelah diskon poin (`finalTotal = subtotal - discount_amount`) dikalikan dengan rasio pengali tier member:
+  - Bronze (`total_spent < Rp 1.000.000`): Pengali 1.0x (1 Pts per Rp 10.000).
+  - Silver (`total_spent >= Rp 1.000.000`): Pengali 1.2x (1.2 Pts per Rp 10.000).
+  - Gold (`total_spent >= Rp 5.000.000`): Pengali 1.5x (1.5 Pts per Rp 10.000).
+  - Platinum (`total_spent >= Rp 15.000.000`): Pengali 2.0x (2.0 Pts per Rp 10.000).
+- **FR-MBR-07**: Sistem memperbarui akumulasi belanja seumur hidup (`total_spent`) member dan menaikkan level tier secara otomatis (*auto-tier upgrade*) begitu syarat akumulasi tercapai.
+- **FR-MBR-08**: Sistem mencatat setiap penambahan dan pengurangan saldo poin ke dalam buku besar audit permanen (`member_point_histories`) dengan tipe mutasi: `EARN` (belanja), `REDEEM` (diskon kasir), `BONUS` (daftar), dan `ADJUSTMENT` (penyesuaian manual).
+- **FR-MBR-09**: Pengguna dapat melihat profil digital member berbentuk **VIP Loyalty Card** lengkap dengan nama, kode, tier badge, saldo poin, total belanja akumulatif, dan riwayat mutasi poin.
+- **FR-MBR-10**: Sistem menyediakan **Modal Dialog Interaktif "Panduan Poin & Kasir"** pada antarmuka Member yang menampilkan matriks perolehan poin per tier, penjelasan nilai 1 Poin = Rp 100, serta 3 template kalimat sapaan/penawaran (*speaking scripts*) kasir saat melayani pelanggan.
+- **FR-MBR-11**: Khusus Pemilik Toko (Owner), sistem menyediakan antarmuka penyesuaian saldo poin manual (`ADJUSTMENT`) dengan validasi alasan audit wajib (minimal 4 karakter) dan proteksi *pessimistic row locking*.
+- **FR-MBR-12**: Sistem melindungi member yang telah memiliki riwayat belanja dari penghapusan fisik (*hard delete* ditolak) dan mengalihkannya menjadi *soft-deactivation* (`is_active = false`) guna menjamin konsistensi laporan masa lalu.
+
 ---
 
 ## 7. Model Data & Perancangan Basis Data (Database Design)
@@ -224,15 +276,15 @@ Database: **MySQL 8.0** dengan Storage Engine **InnoDB**.
 ### 7.1 Entity Relationship Diagram (ERD Relasional)
 
 ```
-┌──────────────────────┐         ┌──────────────────────┐
-│  business_profiles   │         │        users         │
-├──────────────────────┤         ├──────────────────────┤
-│ id (PK)              │         │ id (PK)              │
-│ store_name           │         │ username (UQ)        │
-│ address              │         │ password_hash        │
-│ phone                │         │ full_name            │
-│ receipt_footer       │         │ role (owner/cashier) │
-│ created_at           │         │ is_active            │
+┌──────────────────────┐         ┌──────────────────────┐         ┌──────────────────────┐
+│  business_profiles   │         │        users         │────────▶│    refresh_tokens    │
+├──────────────────────┤         ├──────────────────────┤  1:N    ├──────────────────────┤
+│ id (PK)              │         │ id (PK)              │         │ id (PK)              │
+│ store_name           │         │ username (UQ)        │         │ user_id (FK)         │
+│ address              │         │ password_hash        │         │ token (UQ)           │
+│ phone                │         │ full_name            │         │ expires_at           │
+│ receipt_footer       │         │ role (owner/cashier) │         │ created_at           │
+│ created_at           │         │ is_active            │         └──────────────────────┘
 │ updated_at           │         │ created_at           │
 └──────────────────────┘         └──────────┬───────────┘
                                             │
@@ -245,28 +297,48 @@ Database: **MySQL 8.0** dengan Storage Engine **InnoDB**.
 │ id (PK)                      │                      │ id (PK)                      │
 │ product_id (FK)              │◄────────┐            │ invoice_number (UQ)          │
 │ quantity (INT > 0)           │         │            │ user_id (FK) [kasir]         │
-│ type (enum: 'in')            │         │            │ total_amount (INT)           │
-│ reference_number             │         │            │ cash_paid (INT)              │
-│ notes                        │         │            │ change_returned (INT)        │
-│ created_by_user_id (FK)      │         │            │ transaction_date (DATETIME)  │
-│ created_at                   │         │            │ created_at                   │
-└──────────────────────────────┘         │            └──────────────┬───────────────┘
-                                         │                           │ 1:N
-                                         │                           ▼
-┌──────────────────────────────┐         │            ┌──────────────────────────────┐
-│           products           │         │            │          sale_items          │
-├──────────────────────────────┤         │            ├──────────────────────────────┤
-│ id (PK)                      │         │            │ id (PK)                      │
-│ sku (UQ, VARCHAR 50)         │         │            │ sale_id (FK)                 │
-│ name (VARCHAR 150)           │         │            │ product_id (FK, nullable)    │
-│ price (INT, IDR)             │─────────┼───────────▶│ product_name_at_sale         │
-│ stock (INT >= 0)             │         │            │ price_at_sale (INT)          │
-│ is_active (BOOLEAN)          │         │            │ quantity (INT > 0)           │
-│ created_at                   │         │            │ subtotal (INT)               │
-│ updated_at                   │         │            │ created_at                   │
-└──────────────────────────────┘         │            └──────────────────────────────┘
-                                         │
-                                         └─ (Relasi audit jejak stok)
+│ type (enum: 'in')            │         │            │ member_id (FK, nullable)     │◄───┐
+│ reference_number             │         │            │ total_amount (INT)           │    │
+│ notes                        │         │            │ discount_amount (INT)        │    │
+│ created_by_user_id (FK)      │         │            │ cash_paid (INT)              │    │
+│ created_at                   │         │            │ change_returned (INT)        │    │
+└──────────────────────────────┘         │            │ points_earned (INT)          │    │
+                                         │            │ points_redeemed (INT)        │    │
+                                         │            │ transaction_date (DATETIME)  │    │
+                                         │            │ created_at                   │    │
+                                         │            └──────────────┬───────────────┘    │
+                                         │                           │ 1:N                │ 1:N
+                                         │                           ▼                    │ (belanja)
+┌──────────────────────────────┐         │            ┌──────────────────────────────┐    │
+│           products           │         │            │          sale_items          │    │
+├──────────────────────────────┤         │            ├──────────────────────────────┤    │
+│ id (PK)                      │         │            │ id (PK)                      │    │
+│ sku (UQ, VARCHAR 50)         │         │            │ sale_id (FK)                 │    │
+│ name (VARCHAR 150)           │         │            │ product_id (FK, nullable)    │    │
+│ price (INT, IDR)             │─────────┼───────────▶│ product_name_at_sale         │    │
+│ stock (INT >= 0)             │         │            │ price_at_sale (INT)          │    │
+│ is_active (BOOLEAN)          │         │            │ quantity (INT > 0)           │    │
+│ created_at                   │         │            │ subtotal (INT)               │    │
+│ updated_at                   │         │            │ created_at                   │    │
+└──────────────────────────────┘         │            └──────────────────────────────┘    │
+                                         │                                                │
+                                         └─ (Relasi audit jejak stok)                     │
+                                                                                          │
+┌──────────────────────────────┐         1:N (audit poin)     ┌───────────────────────────┴──┐
+│    member_point_histories    │◀─────────────────────────────│           members            │
+├──────────────────────────────┤                              ├──────────────────────────────┤
+│ id (PK)                      │                              │ id (PK)                      │
+│ member_id (FK)               │                              │ member_code (UQ)             │
+│ sale_id (FK, nullable)       │                              │ name                         │
+│ type (EARN/REDEEM/...)       │                              │ phone (UQ)                   │
+│ points (INT)                 │                              │ email (nullable)             │
+│ balance_after (INT)          │                              │ address (nullable)           │
+│ reason (VARCHAR)             │                              │ points (INT >= 0)            │
+│ created_by (FK, nullable)    │                              │ total_spent (BIGINT)         │
+│ created_at                   │                              │ tier (bronze..platinum)      │
+└──────────────────────────────┘                              │ is_active (BOOLEAN)          │
+                                                              │ created_at / updated_at      │
+                                                              └──────────────────────────────┘
 ```
 
 ### 7.2 Spesifikasi Skema Tabel (Data Dictionary)
@@ -322,15 +394,19 @@ Jurnal audit penambahan stok barang masuk (*audit trail*).
 | `created_at` | DATETIME | NOT NULL | Waktu input mutasi masuk |
 
 #### 5. Tabel `sales`
-Header transaksi penjualan kasir.
+Header transaksi penjualan kasir terintegrasi Loyalty Member.
 | Nama Kolom | Tipe Data | Constraint | Keterangan |
 | :--- | :--- | :--- | :--- |
 | `id` | INT AUTO_INCREMENT | PK | ID transaksi |
 | `invoice_number` | VARCHAR(50) | NOT NULL, UNIQUE | Nomor nota unik (`TRX-YYYYMMDD-XXXX`) |
 | `user_id` | INT | NOT NULL, FK `users(id)` | Kasir yang melayani |
-| `total_amount` | INT UNSIGNED | NOT NULL | Total belanja (Rupiah bulat) |
+| `member_id` | INT | NULL, FK `members(id)` | Relasi member pelanggan (opsional) |
+| `total_amount` | INT UNSIGNED | NOT NULL | Total belanja bersih setelah diskon (Rupiah bulat) |
+| `discount_amount`| INT UNSIGNED | NOT NULL, DEFAULT 0 | Potongan harga dari penukaran poin |
 | `cash_paid` | INT UNSIGNED | NOT NULL | Nominal uang yang diserahkan pembeli |
 | `change_returned`| INT UNSIGNED | NOT NULL | Nominal uang kembalian |
+| `points_earned` | INT UNSIGNED | NOT NULL, DEFAULT 0 | Poin baru yang didapatkan transaksi ini |
+| `points_redeemed`| INT UNSIGNED | NOT NULL, DEFAULT 0 | Poin yang ditukar menjadi diskon |
 | `transaction_date`| DATETIME | NOT NULL | Waktu terjadinya transaksi |
 | `created_at` | DATETIME | NOT NULL | Timestamp sistem |
 
@@ -346,6 +422,47 @@ Rincian item per transaksi dengan perlindungan *historical snapshot*.
 | `quantity` | INT UNSIGNED | NOT NULL (CHECK > 0) | Kuantitas yang dibeli |
 | `subtotal` | INT UNSIGNED | NOT NULL | `price_at_sale * quantity` |
 | `created_at` | DATETIME | NOT NULL | Timestamp sistem |
+
+#### 7. Tabel `members`
+Menyimpan profil pelanggan program loyalitas bertingkat (*Tiered Loyalty*).
+| Nama Kolom | Tipe Data | Constraint | Keterangan |
+| :--- | :--- | :--- | :--- |
+| `id` | INT AUTO_INCREMENT | PK | ID unik member |
+| `member_code` | VARCHAR(50) | NOT NULL, UNIQUE | Kode kartu member (`MBR-YYYYMMDD-XXXX`) |
+| `name` | VARCHAR(100) | NOT NULL | Nama lengkap pelanggan |
+| `phone` | VARCHAR(25) | NOT NULL, UNIQUE | Nomor WhatsApp / telepon |
+| `email` | VARCHAR(100) | NULL | Alamat surel (opsional) |
+| `address` | TEXT | NULL | Alamat tempat tinggal |
+| `points` | INT | NOT NULL, DEFAULT 0 | Saldo poin aktif saat ini |
+| `total_spent` | BIGINT UNSIGNED | NOT NULL, DEFAULT 0 | Akumulasi belanja seumur hidup (Rp) |
+| `tier` | ENUM('bronze','silver','gold','platinum') | NOT NULL, DEFAULT 'bronze' | Level tingkatan member |
+| `is_active` | BOOLEAN | NOT NULL, DEFAULT TRUE | Status keaktifan akun |
+| `created_at` | DATETIME | NOT NULL | Waktu pendaftaran |
+| `updated_at` | DATETIME | NOT NULL | Waktu perubahan profil |
+
+#### 8. Tabel `member_point_histories`
+Buku besar audit (*audit trail ledger*) seluruh pergerakan poin member.
+| Nama Kolom | Tipe Data | Constraint | Keterangan |
+| :--- | :--- | :--- | :--- |
+| `id` | INT AUTO_INCREMENT | PK | ID unik mutasi poin |
+| `member_id` | INT | NOT NULL, FK `members(id)` ON DELETE CASCADE | Member pemilik poin |
+| `sale_id` | INT | NULL, FK `sales(id)` ON DELETE SET NULL | Relasi faktur nota transaksi (jika dari POS) |
+| `type` | ENUM('EARN','REDEEM','BONUS','ADJUSTMENT') | NOT NULL | Kategori mutasi poin |
+| `points` | INT | NOT NULL | Nominal mutasi (+ poin masuk / - poin keluar) |
+| `balance_after`| INT | NOT NULL | Snapshot saldo akhir member setelah mutasi |
+| `reason` | VARCHAR(255) | NULL | Alasan manual audit atau keterangan nota |
+| `created_by` | INT | NULL, FK `users(id)` ON DELETE SET NULL | Operator/Owner yang mengeksekusi |
+| `created_at` | DATETIME | NOT NULL | Waktu mutasi poin tercatat |
+
+#### 9. Tabel `refresh_tokens`
+Menyimpan token sesi refresh berbasis rotasi aman.
+| Nama Kolom | Tipe Data | Constraint | Keterangan |
+| :--- | :--- | :--- | :--- |
+| `id` | INT AUTO_INCREMENT | PK | ID unik sesi token |
+| `user_id` | INT | NOT NULL, FK `users(id)` ON DELETE CASCADE | Pemilik sesi login |
+| `token` | VARCHAR(255) | NOT NULL, UNIQUE | String token refresh acak aman |
+| `expires_at` | DATETIME | NOT NULL | Waktu batas kedaluwarsa sesi |
+| `created_at` | DATETIME | NOT NULL | Waktu token dibuat |
 
 ---
 
@@ -416,6 +533,8 @@ Format Respon Standar:
     ```json
     {
       "cash_paid": 100000,
+      "member_id": 1,
+      "points_to_redeem": 20,
       "items": [
         { "product_id": 1, "quantity": 2 },
         { "product_id": 4, "quantity": 1 }
@@ -427,13 +546,25 @@ Format Respon Standar:
     2. Query produk dengan lock: `SELECT * FROM products WHERE id IN (...) FOR UPDATE`.
     3. Validasi apakah semua produk berstatus `is_active = true`.
     4. Validasi apakah setiap `product.stock >= item.quantity`. Jika ada yang kurang -> Rollback & Return `400 Bad Request`.
-    5. Hitung `total_amount = sum(product.price * item.quantity)`.
-    6. Validasi `cash_paid >= total_amount`. Jika kurang -> Rollback & Return `400 Bad Request`.
-    7. Generate nomor invoice unik (`TRX-YYYYMMDD-XXXX`).
-    8. Potong stok pada masing-masing produk: `stock = stock - item.quantity`.
-    9. Simpan record tabel `sales` dan array tabel `sale_items`.
-    10. Commit transaksi.
-  - Respon: Faktur lengkap siap cetak (`sales` join `sale_items`).
+    5. Hitung kotor `subtotal = sum(product.price * item.quantity)`.
+    6. Jika `member_id` disertakan:
+       - Kunci baris member: `SELECT * FROM members WHERE id = ? FOR UPDATE`.
+       - Validasi keaktifan member (`is_active = true`).
+       - Jika `points_to_redeem > 0`: validasi `member.points >= points_to_redeem`.
+       - Hitung diskon: `discount_amount = points_to_redeem * 100`.
+       - Validasi `discount_amount <= subtotal`.
+       - Hitung total bersih: `total_amount = subtotal - discount_amount`.
+       - Potong saldo poin member dan catat mutasi `REDEEM` di `member_point_histories`.
+    7. Validasi `cash_paid >= total_amount`. Jika kurang -> Rollback & Return `400 Bad Request`.
+    8. Generate nomor invoice unik (`TRX-YYYYMMDD-XXXX`).
+    9. Potong stok pada masing-masing produk: `stock = stock - item.quantity`.
+    10. Jika member aktif:
+        - Hitung perolehan poin: `points_earned = Math.floor((total_amount / 10000) * multiplier)`.
+        - Tambah saldo poin member & catat mutasi `EARN` di `member_point_histories`.
+        - Tambah `member.total_spent += total_amount` dan evaluasi kenaikan level tier otomatis.
+    11. Simpan record tabel `sales` dan array tabel `sale_items`.
+    12. Commit transaksi.
+  - Respon: Faktur lengkap siap cetak (`sales` join `sale_items` dan data member jika ada).
 - `GET /api/sales`
   - Akses: Owner, Cashier (Cashier dibatasi hari ini)
   - Query Params: `?start_date=2026-10-23&end_date=2026-10-23`
@@ -456,11 +587,40 @@ Format Respon Standar:
     }
     ```
 
+### 8.7 Modul Loyalty Member & Poin (`/api/members`)
+- `GET /api/members`
+  - Akses: Owner, Cashier
+  - Query Params: `?search=budi&tier=silver&is_active=true&page=1&limit=10`
+  - Respon: Daftar pelanggan terpaginasi, total poin, dan statistik ringkas.
+- `POST /api/members`
+  - Akses: Owner, Cashier
+  - Body: `{ "name": "Budi Hartono", "phone": "081288889999", "email": "budi@email.com", "address": "Jl. Mawar No. 10" }`
+  - Validasi: `name` dan `phone` wajib, nomor telepon harus unik.
+  - Efek: Generate `member_code` unik, saldo awal poin, tier awal `bronze`.
+- `GET /api/members/:id`
+  - Akses: Owner, Cashier
+  - Respon: Profil lengkap member, tier, total akumulasi belanja, dan saldo poin aktif.
+- `PUT /api/members/:id`
+  - Akses: Owner, Cashier
+  - Body: `{ "name": "Budi Hartono Sp.", "phone": "081288889999", "email": "budi.new@email.com", "address": "Padang" }`
+  - Respon: Data member terupdate.
+- `DELETE /api/members/:id`
+  - Akses: Owner
+  - Efek: Jika member belum pernah transaksi -> Hard delete. Jika sudah memiliki riwayat transaksi -> Soft-archive (`is_active = false`).
+- `GET /api/members/:id/history`
+  - Akses: Owner, Cashier
+  - Respon: Buku besar audit jejak mutasi poin (`EARN`, `REDEEM`, `BONUS`, `ADJUSTMENT`) dengan saldo setelah mutasi dan alasan audit.
+- `POST /api/members/:id/adjust-points`
+  - Akses: Owner Only
+  - Body: `{ "type": "add", "points": 50, "reason": "Bonus apresiasi pelanggan terloyal" }`
+  - Validasi: `reason` minimal 4 karakter, poin bulat positif.
+  - Efek: Eksekusi atomik dengan *row locking*, update saldo member, dan mencatat mutasi `ADJUSTMENT`.
+
 ---
 
-## 9. Skenario Pengujian Mutlak (Mandatory Test Scenarios A01 - A04)
+## 9. Skenario Pengujian Mutlak (Mandatory Test Scenarios A01 - A05)
 
-Berdasarkan Halaman 6 Kurikulum OJT v1.2, proyek P01 memiliki 4 skenario uji wajib yang harus dibuktikan secara otomatis dan saat demo evaluasi:
+Berdasarkan Halaman 6 Kurikulum OJT v1.2 dan pengembangan modul loyalty, proyek P01 memiliki 5 skenario uji wajib yang harus dibuktikan secara otomatis dan saat demo evaluasi:
 
 ### Skenario A01: Uji Perhitungan Normal & Pemotongan Stok
 - **Kondisi Awal**:
@@ -504,6 +664,27 @@ Berdasarkan Halaman 6 Kurikulum OJT v1.2, proyek P01 memiliki 4 skenario uji waj
   - Pemilik toko kemudian mengedit harga master Produk A menjadi Rp30.000 di katalog master.
   - Buka kembali faktur/nota transaksi lama.
   - *Expected*: Nota transaksi lama **tetap mencantumkan harga Rp20.000**. Snapshot historis tidak terpengaruh oleh kenaikan harga baru.
+
+### Skenario A05: Uji Modul Loyalty Member, Diskon Poin, Pengali Tier & Jejak Audit
+- **Kondisi Awal**:
+  - Member "Budi Hartono": Tier Bronze (pengali 1.0x), Saldo Poin = 100 Pts, Total Belanja Terakumulasi = Rp 950.000.
+  - Keranjang Belanja Kasir: Belanja barang senilai kotor Rp 100.000.
+- **Aksi Pengujian**:
+  - Kasir memilih member Budi Hartono.
+  - Kasir mencentang opsi penukaran 50 Poin.
+  - Pembeli membayar dengan uang tunai Rp 100.000.
+- **Hasil yang Diharapkan (Expected Result)**:
+  - Nilai diskon potongan harga tepat: 50 Pts × Rp 100 = **Rp 5.000**.
+  - Total tagihan bersih setelah diskon: Rp 100.000 - Rp 5.000 = **Rp 95.000**.
+  - Kembalian uang tunai: Rp 100.000 - Rp 95.000 = **Rp 5.000**.
+  - Poin baru yang didapatkan dihitung dari belanja bersih: `Math.floor((95.000 / 10.000) * 1.0) =` **+9 Pts**.
+  - Saldo poin akhir member: 100 - 50 + 9 = **59 Pts**.
+  - Akumulasi belanja seumur hidup bertambah: Rp 950.000 + Rp 95.000 = **Rp 1.045.000**.
+  - Tier member otomatis naik (*auto-upgrade*) dari **Bronze** menjadi **Silver** (karena akumulasi belanja telah melampaui Rp 1.000.000).
+  - Tabel `member_point_histories` mencatat 2 mutasi audit transaksional yang tidak dapat diubah:
+    1. Tipe `REDEEM`: -50 Pts (saldo setelah: 50 Pts).
+    2. Tipe `EARN`: +9 Pts (saldo setelah: 59 Pts).
+  - Nota kasir mencantumkan identitas member, diskon poin, poin yang didapatkan, dan sisa saldo akhir.
 
 ---
 

@@ -1,33 +1,51 @@
+// ==============================================================================
+// FILE: frontend/src/api/axios.js
+// DESKRIPSI: Konfigurasi Axios terpusat untuk komunikasi Frontend ke Backend API.
+// Memiliki fitur:
+// 1. In-Memory Token: Token disimpan di memori variabel JS (aman dari pencurian XSS di localStorage).
+// 2. Request Interceptor: Otomatis menempelkan 'Authorization: Bearer <token>' ke setiap request.
+// 3. Response Interceptor: Otomatis meminta token baru jika token lama habis (Silent Refresh),
+//    tanpa mengganggu atau membuat kasir harus login ulang di tengah transaksi.
+// ==============================================================================
+
 import axios from 'axios';
 
+// Alamat URL Backend API (diambil dari file .env Vite atau default localhost:5000/api)
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// In-Memory Access Token (Security Best Practice: never store access/refresh tokens in localStorage)
+// Variabel penampung Access Token di dalam memori JavaScript
 let inMemoryAccessToken = null;
 
+// Fungsi untuk menyimpan token ke memori
 export const setAccessToken = (token) => {
   inMemoryAccessToken = token;
 };
 
+// Fungsi untuk mengambil token dari memori
 export const getAccessToken = () => {
   return inMemoryAccessToken;
 };
 
+// Fungsi untuk menghapus token dari memori saat logout
 export const clearAccessToken = () => {
   inMemoryAccessToken = null;
 };
 
-// Create Centralized Axios Instance
+// Membuat instansiasi Axios khusus aplikasi kita
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true, // Enables sending HttpOnly refresh cookie automatically
+  withCredentials: true, // WAJIB TRUE agar browser otomatis menyertakan cookie HttpOnly (refresh token)
   headers: {
     'Content-Type': 'application/json'
   },
-  timeout: 15000
+  timeout: 15000 // Batas waktu tunggu request maksimal 15 detik
 });
 
-// Flag and Queue to handle concurrent requests during token refresh (Anti-Refresh Storm)
+// ------------------------------------------------------------------------------
+// PENGENDALI ANTREAN REFRESH TOKEN (Anti-Refresh Storm)
+// Jika ada 3 request bersamaan saat token habis, request ke-2 dan ke-3 mengantre
+// sampai request ke-1 selesai memperbarui token.
+// ------------------------------------------------------------------------------
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -42,9 +60,13 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-// Request Interceptor: Attach Bearer Access Token
+// ------------------------------------------------------------------------------
+// 1. REQUEST INTERCEPTOR
+// Fungsi ini otomatis berjalan SEBELUM setiap request dikirim ke backend
+// ------------------------------------------------------------------------------
 apiClient.interceptors.request.use(
   (config) => {
+    // Jika ada token di memori dan belum terpasang di header, pasang sekarang
     if (inMemoryAccessToken && !config.headers['Authorization']) {
       config.headers['Authorization'] = `Bearer ${inMemoryAccessToken}`;
     }
@@ -53,13 +75,18 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Handle 401 & Silent Refresh Rotation
+// ------------------------------------------------------------------------------
+// 2. RESPONSE INTERCEPTOR
+// Fungsi ini otomatis berjalan SETELAH response diterima dari backend
+// Jika server membalas dengan status 401 Unauthorized (Token Habis),
+// Axios otomatis memanggil endpoint refresh token secara diam-diam (Silent Refresh).
+// ------------------------------------------------------------------------------
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Do not attempt refresh on login or refresh requests themselves to prevent loops
+    // Jangan coba refresh jika error bukan 401, atau jika request itu sendiri adalah login/refresh
     if (
       !error.response ||
       error.response.status !== 401 ||
@@ -70,8 +97,8 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // Jika proses refresh token sedang berjalan oleh request lain, masukkan request ini ke antrean
     if (isRefreshing) {
-      // If refresh is already pending, queue this request
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject });
       })
@@ -82,11 +109,12 @@ apiClient.interceptors.response.use(
         .catch((err) => Promise.reject(err));
     }
 
+    // Tandai request ini sudah pernah dicoba ulang agar tidak looping selamanya
     originalRequest._retry = true;
     isRefreshing = true;
 
     try {
-      // Request new token using HttpOnly cookie
+      // Minta Access Token baru ke server menggunakan cookie HttpOnly yang tersimpan di browser
       const response = await axios.post(
         `${API_BASE_URL}/auth/refresh`,
         {},
@@ -94,15 +122,22 @@ apiClient.interceptors.response.use(
       );
 
       const newAccessToken = response.data?.data?.token;
+
+      // Simpan token baru ke memori
       setAccessToken(newAccessToken);
+
+      // Jalankan semua request lain yang tadi sedang mengantre
       processQueue(null, newAccessToken);
 
+      // Ulangi request awal yang tadi sempat gagal karena token kedaluwarsa
       originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
       return apiClient(originalRequest);
     } catch (refreshErr) {
+      // Jika refresh token juga gagal (misal sudah lewat 7 hari), bersihkan antrean dan token
       processQueue(refreshErr, null);
       clearAccessToken();
-      // Dispatch custom event to notify React AuthContext that session expired
+
+      // Kirim event khusus agar React AuthContext tahu dan melempar pengguna ke halaman login
       window.dispatchEvent(new CustomEvent('auth:session-expired'));
       return Promise.reject(refreshErr);
     } finally {

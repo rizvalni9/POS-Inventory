@@ -50,6 +50,9 @@ Database telah dilengkapi seeder akun awal untuk pengujian peran:
 | **Cetak Ulang Nota** | `GET /api/sales/:id` | ✅ Ya | ✅ Ya | Snapshot item immutability |
 | **Dashboard Rekap Omset** | `GET /api/reports/daily-summary`| ✅ Ya | ❌ Ditolak | `authorizeRoles('owner')` |
 | **Kelola Akun & Hak Akses**| `/api/users/*` | ✅ Ya | ❌ Ditolak | `authorizeRoles('owner')` |
+| **Loyalty Member (Lihat & Daftar)**| `GET / POST /api/members` | ✅ Ya | ✅ Ya | `authenticateToken` |
+| **Penyesuaian Poin Manual**| `POST /api/members/:id/adjust-points` | ✅ Ya | ❌ Ditolak | `authorizeRoles('owner')` |
+| **Ubah Status / Hapus Member**| `PATCH / DELETE /api/members/:id` | ✅ Ya | ❌ Ditolak | `authorizeRoles('owner')` |
 
 ---
 
@@ -107,7 +110,7 @@ docker-compose up -d --build
 
 ---
 
-## 6. Verifikasi 4 Skenario Mutlak (A01 - A04)
+## 6. Verifikasi 5 Skenario Mutlak (A01 - A05)
 
 1. **Skenario A01: Uji Perhitungan Normal & Pemotongan Stok Atomik**
    - Kasir memilih 2 unit Beras (Rp68.000) = Rp136.000. Bayar Rp150.000.
@@ -119,3 +122,15 @@ docker-compose up -d --build
 4. **Skenario A04: RBAC & Snapshot Immutabilitas Harga Historis**
    - Kasir menembak endpoint owner -> Ditolak `403 Forbidden`.
    - Pemilik menaikkan harga master beras menjadi Rp75.000. Buka kembali riwayat faktur lama -> Harga tetap tercatat Rp68.000 sesuai snapshot permanen pada `sale_items`.
+5. **Skenario A05: Loyalty Member, Diskon Poin, Pengali Tier & Jejak Audit**
+   - Kasir memilih member di meja kasir, menukar 50 Poin (Diskon Rp 5.000 dengan valuasi 1 Poin = Rp 100).
+   - Perolehan poin baru dihitung dari nilai belanja bersih setelah diskon dikalikan rasio tier member.
+   - Kenaikan tier dievaluasi otomatis (*auto-upgrade*), dan setiap mutasi poin tercatat permanen di buku besar audit `member_point_histories`.
+
+---
+
+## 7. Dokumentasi Lengkap Proyek
+
+- [PRD (Product Requirement Document)](./PRD_P01_Kasir_dan_Stok_Toko.md): Spesifikasi lengkap kebutuhan sistem, alur bisnis, ERD database, data dictionary, kontrak API, dan skenario pengujian.
+- [Panduan Belajar & Arsitektur Kode](./PANDUAN_BELAJAR_DAN_ARSITEKTUR_KODE.md): Panduan komprehensif konsep analogi, arsitektur kode frontend & backend baris-per-baris, modal dialog panduan kasir, dan tutorial penggunaan.
+- [Dokumen Word Cetak (DOCX)](./PANDUAN_BELAJAR_DAN_KODE_LENGKAP.docx): Dokumen cetak laporan OJT lengkap siap saji.
