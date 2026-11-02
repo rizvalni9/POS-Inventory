@@ -70,12 +70,12 @@ const SalesHistoryPage = () => {
   return (
     <div className="space-y-6">
       {/* Header and Filter */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-200">
         <div>
-          <h1 className="text-xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
             {isOwner ? 'Riwayat Transaksi Penjualan' : 'Riwayat Penjualan Hari Ini'}
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             {isOwner
               ? 'Arsip faktur transaksi penjualan tunai, pencarian histori, dan cetak ulang nota.'
               : 'Daftar transaksi kasir yang diterbitkan pada shift hari ini.'}
@@ -83,13 +83,13 @@ const SalesHistoryPage = () => {
         </div>
 
         {isOwner && (
-          <div className="flex items-center space-x-2 self-start sm:self-auto bg-slate-50 p-1.5 rounded-2xl border border-slate-200">
+          <div className="flex items-center space-x-2 self-start sm:self-auto bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700">
             <Calendar className="w-4 h-4 text-slate-400 ml-2" />
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="text-xs font-semibold bg-transparent text-slate-700 focus:outline-none"
+              className="text-xs font-semibold bg-transparent text-slate-700 dark:text-slate-200 focus:outline-none"
               title="Dari Tanggal"
             />
             <span className="text-xs text-slate-400">-</span>
@@ -97,7 +97,7 @@ const SalesHistoryPage = () => {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="text-xs font-semibold bg-transparent text-slate-700 focus:outline-none pr-2"
+              className="text-xs font-semibold bg-transparent text-slate-700 dark:text-slate-200 focus:outline-none pr-2"
               title="Sampai Tanggal"
             />
           </div>
@@ -105,10 +105,10 @@ const SalesHistoryPage = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-200">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase tracking-wider font-semibold">
+            <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 uppercase tracking-wider font-semibold">
               <tr>
                 <th className="px-6 py-3.5">No. Invoice</th>
                 <th className="px-6 py-3.5">Tanggal & Waktu</th>
@@ -120,7 +120,7 @@ const SalesHistoryPage = () => {
                 <th className="px-6 py-3.5 text-center">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
               {loading ? (
                 <tr>
                   <td colSpan="8" className="text-center py-12 text-slate-400">
@@ -130,19 +130,19 @@ const SalesHistoryPage = () => {
                 </tr>
               ) : sales.length > 0 ? (
                 sales.map((sale) => (
-                  <tr key={sale.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-6 py-4 font-mono font-bold text-slate-900">
+                  <tr key={sale.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                    <td className="px-6 py-4 font-mono font-bold text-slate-900 dark:text-slate-100">
                       <div>{sale.invoice_number}</div>
                       {sale.member && (
-                        <div className="font-sans text-[11px] font-semibold text-brand-700 flex items-center space-x-1 mt-0.5">
-                          <span className="px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 text-[9px] font-bold">
+                        <div className="font-sans text-[11px] font-semibold text-brand-700 dark:text-brand-400 flex items-center space-x-1 mt-0.5">
+                          <span className="px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 text-[9px] font-bold">
                             {sale.member.tier}
                           </span>
                           <span>{sale.member.name}</span>
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-slate-500 whitespace-nowrap">
+                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400 whitespace-nowrap">
                       {new Date(sale.transaction_date).toLocaleString('id-ID', {
                         day: 'numeric',
                         month: 'short',
@@ -151,25 +151,25 @@ const SalesHistoryPage = () => {
                         minute: '2-digit'
                       })} WIB
                     </td>
-                    <td className="px-6 py-4 font-medium text-slate-800">
+                    <td className="px-6 py-4 font-medium text-slate-800 dark:text-slate-200">
                       {sale.cashier?.full_name || sale.cashier?.username}
                     </td>
                     <td className="px-6 py-4">
                       {sale.items?.length || 0} macam ({sale.items?.reduce((s, it) => s + it.quantity, 0)} pcs)
                     </td>
-                    <td className="px-6 py-4 text-slate-600">
+                    <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
                       {formatRupiah(sale.cash_paid)}
                     </td>
-                    <td className="px-6 py-4 text-slate-600">
+                    <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
                       {formatRupiah(sale.change_returned)}
                     </td>
-                    <td className="px-6 py-4 text-right font-black text-slate-900">
+                    <td className="px-6 py-4 text-right font-black text-slate-900 dark:text-slate-100">
                       {formatRupiah(sale.total_amount)}
                     </td>
                     <td className="px-6 py-4 text-center">
                       <button
                         onClick={() => handleOpenReceipt(sale.id)}
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 transition-colors"
+                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-950/60 hover:bg-brand-100 dark:hover:bg-brand-900/60 transition-colors"
                       >
                         <Printer className="w-3.5 h-3.5" />
                         <span>Cetak Nota</span>

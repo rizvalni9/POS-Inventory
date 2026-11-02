@@ -131,6 +131,10 @@ docker-compose up -d --build
 
 ## 7. Dokumentasi Lengkap Proyek
 
-- [PRD (Product Requirement Document)](./PRD_P01_Kasir_dan_Stok_Toko.md): Spesifikasi lengkap kebutuhan sistem, alur bisnis, ERD database, data dictionary, kontrak API, dan skenario pengujian.
-- [Panduan Belajar & Arsitektur Kode](./PANDUAN_BELAJAR_DAN_ARSITEKTUR_KODE.md): Panduan komprehensif konsep analogi, arsitektur kode frontend & backend baris-per-baris, modal dialog panduan kasir, dan tutorial penggunaan.
-- [Dokumen Word Cetak (DOCX)](./PANDUAN_BELAJAR_DAN_KODE_LENGKAP.docx): Dokumen cetak laporan OJT lengkap siap saji.
+Dokumentasi lengkap dan terstruktur telah tersedia di dalam folder **[`docs/`](./docs/README.md)**:
+
+- 📖 **[Pusat Dokumentasi & Indeks (docs/README.md)](./docs/README.md)**
+- 🛒 **[01 - Panduan Penggunaan Aplikasi (docs/01-panduan-penggunaan.md)](./docs/01-panduan-penggunaan.md)**: Panduan operasional langkah demi langkah bagi Kasir & Pemilik Toko.
+- ⚙️ **[02 - Alur Kerja Fitur & Sistem (docs/02-alur-kerja-sistem.md)](./docs/02-alur-kerja-sistem.md)**: Arsitektur sistem, diagram alur transaksi atomik, sistem loyalty, dan relasi database (ERD).
+- 💻 **[03 - Panduan Belajar Kode Proyek (docs/03-panduan-belajar-kode.md)](./docs/03-panduan-belajar-kode.md)**: Bedah kode sumber Backend Express & Sequelize, Frontend React & Tailwind CSS, serta metodologi *debugging* 4 langkah.
+- 📋 **[PRD (Product Requirement Document)](./PRD_P01_Kasir_dan_Stok_Toko.md)**: Dokumen spesifikasi kebutuhan sistem awal.

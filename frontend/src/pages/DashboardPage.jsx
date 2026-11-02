@@ -50,21 +50,21 @@ const DashboardPage = () => {
   return (
     <div className="space-y-6">
       {/* Top Banner & Date Filter */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-200">
         <div>
-          <h1 className="text-xl font-black text-slate-900 tracking-tight">Ringkasan Operasional Toko</h1>
-          <p className="text-xs text-slate-500 mt-1">
+          <h1 className="text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Ringkasan Operasional Toko</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Pantau arus kas harian, pergerakan transaksi kasir, dan volume penjualan secara real-time.
           </p>
         </div>
 
-        <div className="flex items-center space-x-2 bg-slate-50 p-1.5 rounded-2xl border border-slate-200 self-start sm:self-auto">
+        <div className="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 self-start sm:self-auto">
           <Calendar className="w-4 h-4 text-slate-400 ml-2" />
           <input
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="text-xs font-semibold bg-transparent text-slate-700 focus:outline-none pr-2"
+            className="text-xs font-semibold bg-transparent text-slate-700 dark:text-slate-200 focus:outline-none pr-2"
           />
         </div>
       </div>
@@ -93,37 +93,37 @@ const DashboardPage = () => {
         </div>
 
         {/* Total Transaksi */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm relative">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm relative transition-colors duration-200">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Transaksi Selesai
             </span>
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center">
               <Receipt className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 mt-3">
             {loading ? <Loader2 className="w-7 h-7 animate-spin text-slate-400" /> : `${summary.total_sales_count} Nota`}
           </div>
-          <p className="text-[11px] text-slate-400 mt-2">
+          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-2">
             Faktur belanja berhasil diproses
           </p>
         </div>
 
         {/* Total Item Terjual */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm relative">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm relative transition-colors duration-200">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Barang Terjual
             </span>
-            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center">
               <PackageCheck className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 mt-3">
             {loading ? <Loader2 className="w-7 h-7 animate-spin text-slate-400" /> : `${summary.total_items_sold} Unit`}
           </div>
-          <p className="text-[11px] text-slate-400 mt-2">
+          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-2">
             Total kuantitas barang keluar etalase
           </p>
         </div>
@@ -133,65 +133,65 @@ const DashboardPage = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <NavLink
           to="/pos"
-          className="group flex items-center justify-between p-4 bg-white hover:bg-brand-50 border border-slate-200 hover:border-brand-300 rounded-2xl shadow-sm transition-all"
+          className="group flex items-center justify-between p-4 bg-white dark:bg-slate-900 hover:bg-brand-50 dark:hover:bg-brand-950/30 border border-slate-200 dark:border-slate-800 hover:border-brand-300 dark:hover:border-brand-700 rounded-2xl shadow-sm transition-all"
         >
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-100 text-brand-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-brand-100 dark:bg-brand-950 text-brand-700 dark:text-brand-300 flex items-center justify-center group-hover:scale-105 transition-transform">
               <ShoppingCart className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-sm font-bold text-slate-900">Buka Kasir POS</div>
-              <div className="text-xs text-slate-500">Mulai transaksi penjualan baru</div>
+              <div className="text-sm font-bold text-slate-900 dark:text-slate-100">Buka Kasir POS</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">Mulai transaksi penjualan baru</div>
             </div>
           </div>
-          <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-brand-600 group-hover:translate-x-1 transition-all" />
+          <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-400 group-hover:translate-x-1 transition-all" />
         </NavLink>
 
         <NavLink
           to="/stock-in"
-          className="group flex items-center justify-between p-4 bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-2xl shadow-sm transition-all"
+          className="group flex items-center justify-between p-4 bg-white dark:bg-slate-900 hover:bg-blue-50 dark:hover:bg-blue-950/30 border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-700 rounded-2xl shadow-sm transition-all"
         >
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 flex items-center justify-center group-hover:scale-105 transition-transform">
               <ArrowDownToLine className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-sm font-bold text-slate-900">Input Stok Masuk</div>
-              <div className="text-xs text-slate-500">Catat kiriman barang pemasok</div>
+              <div className="text-sm font-bold text-slate-900 dark:text-slate-100">Input Stok Masuk</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">Catat kiriman barang pemasok</div>
             </div>
           </div>
-          <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+          <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
         </NavLink>
 
         <NavLink
           to="/products"
-          className="group flex items-center justify-between p-4 bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-300 rounded-2xl shadow-sm transition-all"
+          className="group flex items-center justify-between p-4 bg-white dark:bg-slate-900 hover:bg-amber-50 dark:hover:bg-amber-950/30 border border-slate-200 dark:border-slate-800 hover:border-amber-300 dark:hover:border-amber-700 rounded-2xl shadow-sm transition-all"
         >
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 flex items-center justify-center group-hover:scale-105 transition-transform">
               <Package className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-sm font-bold text-slate-900">Katalog Produk</div>
-              <div className="text-xs text-slate-500">Kelola master harga & SKU</div>
+              <div className="text-sm font-bold text-slate-900 dark:text-slate-100">Katalog Produk</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">Kelola master harga & SKU</div>
             </div>
           </div>
-          <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-amber-600 group-hover:translate-x-1 transition-all" />
+          <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />
         </NavLink>
       </div>
 
       {/* Sales Transactions on Selected Date */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-200">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-slate-900">Daftar Transaksi Tanggal {selectedDate}</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Daftar Transaksi Tanggal {selectedDate}</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Rincian faktur penjualan tunai yang diterbitkan pada hari ini.
             </p>
           </div>
           <NavLink
             to="/sales-history"
-            className="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center space-x-1"
+            className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:text-brand-700 flex items-center space-x-1"
           >
             <span>Semua Riwayat</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -200,7 +200,7 @@ const DashboardPage = () => {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase tracking-wider font-semibold">
+            <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 uppercase tracking-wider font-semibold">
               <tr>
                 <th className="px-6 py-3.5">No. Invoice</th>
                 <th className="px-6 py-3.5">Waktu</th>
@@ -209,7 +209,7 @@ const DashboardPage = () => {
                 <th className="px-6 py-3.5 text-right">Total Transaksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
               {loading ? (
                 <tr>
                   <td colSpan="5" className="text-center py-10 text-slate-400">
@@ -219,25 +219,25 @@ const DashboardPage = () => {
                 </tr>
               ) : summary.sales && summary.sales.length > 0 ? (
                 summary.sales.map((sale) => (
-                  <tr key={sale.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-6 py-4 font-mono font-bold text-slate-900">
+                  <tr key={sale.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                    <td className="px-6 py-4 font-mono font-bold text-slate-900 dark:text-slate-100">
                       {sale.invoice_number}
                     </td>
-                    <td className="px-6 py-4 text-slate-500">
+                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400">
                       {new Date(sale.transaction_date).toLocaleTimeString('id-ID', {
                         hour: '2-digit',
                         minute: '2-digit'
                       })} WIB
                     </td>
                     <td className="px-6 py-4">
-                      <span className="font-medium text-slate-800">
+                      <span className="font-medium text-slate-800 dark:text-slate-200">
                         {sale.cashier?.full_name || sale.cashier?.username}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       {sale.items?.reduce((sum, it) => sum + it.quantity, 0)} item
                     </td>
-                    <td className="px-6 py-4 text-right font-bold text-slate-900">
+                    <td className="px-6 py-4 text-right font-bold text-slate-900 dark:text-slate-100">
                       {formatRupiah(sale.total_amount)}
                     </td>
                   </tr>

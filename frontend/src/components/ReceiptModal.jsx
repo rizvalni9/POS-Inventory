@@ -2,9 +2,8 @@
 // FILE: frontend/src/components/ReceiptModal.jsx
 // DESKRIPSI: Modal popup struk transaksi penjualan kasir.
 // Didesain presisi menyerupai kertas printer thermal POS (58mm / 80mm).
-// Menggunakan CSS print:
-// - 'no-print': elemen yang disembunyikan saat dicetak (seperti tombol cetak & tutup).
-// - 'print-receipt-container': area struk yang dicetak ke kertas thermal fisik.
+// Menggunakan mekanisme cetak iframe mandiri (isolated print) untuk menjamin
+// hasil cetak thermal tajam, tanpa halaman kosong, dan presisi di semua printer.
 // ==============================================================================
 
 import React from 'react';
@@ -13,11 +12,6 @@ import { Printer, CheckCircle2, X } from 'lucide-react';
 const ReceiptModal = ({ isOpen, onClose, saleData, storeData }) => {
   // Jika modal sedang ditutup atau belum ada data nota, jangan render apapun
   if (!isOpen || !saleData) return null;
-
-  // Fungsi memicu dialog cetak printer bawaan browser
-  const handlePrint = () => {
-    window.print();
-  };
 
   // Helper format rupiah (contoh: Rp15.000)
   const formatRupiah = (val) => {
@@ -28,34 +22,157 @@ const ReceiptModal = ({ isOpen, onClose, saleData, storeData }) => {
   const formatDate = (dateStr) => {
     if (!dateStr) return '-';
     const d = new Date(dateStr);
-    return d.toLocaleString('id-ID', {
-      timeZone: 'Asia/Jakarta',
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }) + ' WIB';
+    return (
+      d.toLocaleString('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }) + ' WIB'
+    );
+  };
+
+  // Fungsi memicu dialog cetak printer bawaan browser lewat iframe mandiri
+  const handlePrint = () => {
+    const receiptElement = document.getElementById('receipt-print-area');
+    if (!receiptElement) {
+      window.print();
+      return;
+    }
+
+    // Buat iframe tersembunyi untuk mencetak struk secara independen
+    const iframe = document.createElement('iframe');
+    iframe.name = 'receiptPrintFrame';
+    iframe.style.position = 'fixed';
+    iframe.style.top = '-9999px';
+    iframe.style.left = '-9999px';
+    iframe.style.width = '80mm';
+    iframe.style.height = '100px';
+    iframe.style.border = 'none';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (!doc) {
+      window.print();
+      return;
+    }
+
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>Nota_${saleData?.invoice_number || 'Transaksi'}</title>
+          <style>
+            @page {
+              margin: 0;
+              size: auto;
+            }
+            * {
+              box-sizing: border-box;
+              margin: 0;
+              padding: 0;
+              color: #000 !important;
+              border-color: #000 !important;
+            }
+            body {
+              font-family: 'Courier New', Courier, monospace;
+              font-size: 11px;
+              line-height: 1.35;
+              color: #000;
+              background: #fff;
+              width: 78mm;
+              max-width: 100%;
+              margin: 0 auto;
+              padding: 4mm 2mm;
+            }
+            .text-center { text-align: center; }
+            .text-right { text-align: right; }
+            .font-bold { font-weight: bold; }
+            .font-semibold { font-weight: 600; }
+            .font-mono { font-family: 'Courier New', Courier, monospace; }
+            .uppercase { text-transform: uppercase; }
+            .tracking-wider { letter-spacing: 0.05em; }
+            .italic { font-style: italic; }
+            .flex { display: flex; }
+            .justify-between { justify-content: space-between; }
+            .items-center { align-items: center; }
+            .border-b { border-bottom: 1px dashed #000; }
+            .border-t { border-top: 1px dashed #000; }
+            .border-dashed { border-style: dashed; }
+            .py-1 { padding-top: 3px; padding-bottom: 3px; }
+            .py-1\\.5, .py-1-5 { padding-top: 4px; padding-bottom: 4px; }
+            .py-2\\.5, .py-2-5 { padding-top: 6px; padding-bottom: 6px; }
+            .py-3 { padding-top: 8px; padding-bottom: 8px; }
+            .pt-1 { padding-top: 3px; }
+            .pt-4 { padding-top: 10px; }
+            .pb-3 { padding-bottom: 8px; }
+            .pl-2 { padding-left: 8px; }
+            .p-2 { padding: 6px; }
+            .my-1 { margin-top: 4px; margin-bottom: 4px; }
+            .mt-1 { margin-top: 3px; }
+            .space-y-0\\.5 > * + *, .space-y-0-5 > * + * { margin-top: 2px; }
+            .space-y-1 > * + * { margin-top: 3px; }
+            .space-y-1\\.5 > * + *, .space-y-1-5 > * + * { margin-top: 4px; }
+            .space-y-2 > * + * { margin-top: 6px; }
+            .text-base { font-size: 13px; font-weight: bold; }
+            .text-sm { font-size: 12px; }
+            .text-xs { font-size: 11px; }
+            .text-\\[11px\\] { font-size: 10.5px; }
+            .text-\\[10px\\] { font-size: 10px; }
+            .text-\\[9px\\] { font-size: 9px; }
+            .rounded-lg { border-radius: 4px; }
+            .bg-slate-50\\/60, .bg-slate-50 { background: transparent; }
+          </style>
+        </head>
+        <body>
+          <div class="thermal-receipt">
+            ${receiptElement.innerHTML}
+          </div>
+        </body>
+      </html>
+    `);
+    doc.close();
+
+    // Beri jeda sejenak agar iframe selesai memuat dokumen sebelum memicu cetak
+    setTimeout(() => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      } catch (err) {
+        console.error('Gagal mencetak lewat iframe, beralih ke window.print():', err);
+        window.print();
+      } finally {
+        setTimeout(() => {
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+          }
+        }, 1500);
+      }
+    }, 250);
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
+    <div className="fixed inset-0 z-50 overflow-y-auto print-receipt-wrapper print:static print:overflow-visible">
+      <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0 print:block print:min-h-0 print:p-0">
         {/* Latar Belakang Gelap Modal (Otomatis disembunyikan saat cetak via class 'no-print') */}
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm no-print" onClick={onClose} />
 
         {/* Kotak Kontainer Dialog Struk */}
-        <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 w-full max-w-md border border-slate-200">
+        <div className="relative transform overflow-hidden rounded-2xl bg-white dark:bg-slate-900 text-left shadow-2xl transition-all sm:my-8 w-full max-w-md border border-slate-200 dark:border-slate-800 print-receipt-dialog print:static print:transform-none print:overflow-visible print:shadow-none print:border-none print:w-full print:m-0">
           
           {/* Header Dialog (Hanya tampil di layar monitor) */}
-          <div className="flex items-center justify-between px-6 py-4 bg-slate-50 border-b border-slate-100 no-print">
-            <div className="flex items-center space-x-2 text-brand-700">
-              <CheckCircle2 className="w-5 h-5 text-brand-600" />
+          <div className="flex items-center justify-between px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-slate-800 no-print">
+            <div className="flex items-center space-x-2 text-brand-700 dark:text-brand-400">
+              <CheckCircle2 className="w-5 h-5 text-brand-600 dark:text-brand-400" />
               <span className="font-semibold text-sm">Transaksi Berhasil</span>
             </div>
             <button
               onClick={onClose}
-              className="rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors"
+              className="rounded-lg p-1 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -64,7 +181,7 @@ const ReceiptModal = ({ isOpen, onClose, saleData, storeData }) => {
           {/* ============================================================== */}
           {/* AREA STRUK THERMAL (Dicetak ke Kertas Printer Fisik)            */}
           {/* ============================================================== */}
-          <div className="p-6 bg-white print-receipt-container font-mono text-xs text-slate-800">
+          <div id="receipt-print-area" className="p-6 bg-white print-receipt-container font-mono text-xs text-slate-800">
             {/* 1. Header Identitas Toko */}
             <div className="text-center pb-3 border-b border-dashed border-slate-300">
               <h2 className="text-base font-bold uppercase tracking-wider text-slate-900">
@@ -182,11 +299,11 @@ const ReceiptModal = ({ isOpen, onClose, saleData, storeData }) => {
           </div>
 
           {/* Tombol Aksi di Layar (Tutup & Cetak Nota) */}
-          <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end space-x-3 no-print">
+          <div className="p-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end space-x-3 no-print">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-200 transition-colors"
+              className="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
             >
               Tutup
             </button>

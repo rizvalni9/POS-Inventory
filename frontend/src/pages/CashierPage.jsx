@@ -327,9 +327,9 @@ const CashierPage = () => {
         {/* ============================================================== */}
         {/* BAGIAN KIRI: ETALASE PRODUK & PENCARIAN (7 Kolom)               */}
         {/* ============================================================== */}
-        <div className="lg:col-span-7 flex flex-col bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="lg:col-span-7 flex flex-col bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-200">
           {/* Header Pencarian Barang */}
-          <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row gap-3">
+          <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               <input
@@ -338,13 +338,13 @@ const CashierPage = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Pencarian cepat barang (ketik nama atau barcode/SKU)..."
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 text-xs border border-slate-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs border border-slate-200 dark:border-slate-700 rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all"
               />
             </div>
             <button
               type="button"
               onClick={fetchCatalog}
-              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-xs font-semibold transition-colors flex items-center justify-center space-x-1.5"
+              className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-2xl text-xs font-semibold transition-colors flex items-center justify-center space-x-1.5"
             >
               <span>Refresh</span>
             </button>
@@ -366,37 +366,37 @@ const CashierPage = () => {
                       onClick={() => !isOutOfStock && addToCart(p)}
                       className={`relative flex flex-col justify-between p-3.5 rounded-2xl border transition-all select-none ${
                         isOutOfStock
-                          ? 'bg-slate-50 border-slate-200 opacity-60 cursor-not-allowed'
-                          : 'bg-white border-slate-200 hover:border-brand-500 hover:shadow-md hover:-translate-y-0.5 cursor-pointer active:scale-95'
+                          ? 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 opacity-60 cursor-not-allowed'
+                          : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-brand-500 hover:shadow-md hover:-translate-y-0.5 cursor-pointer active:scale-95'
                       }`}
                     >
                       <div>
                         <div className="flex items-center justify-between gap-1 mb-1.5">
-                          <span className="font-mono text-[10px] text-slate-500 font-semibold px-2 py-0.5 bg-slate-100 rounded-md">
+                          <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400 font-semibold px-2 py-0.5 bg-slate-100 dark:bg-slate-700/60 rounded-md">
                             {p.sku}
                           </span>
                           <span
                             className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
                               p.stock > 10
-                                ? 'bg-emerald-50 text-emerald-700'
+                                ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
                                 : p.stock > 0
-                                ? 'bg-amber-50 text-amber-700'
-                                : 'bg-rose-50 text-rose-700'
+                                ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300'
+                                : 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
                             }`}
                           >
                             Stok: {p.stock}
                           </span>
                         </div>
-                        <h3 className="font-bold text-xs text-slate-900 line-clamp-2 leading-snug">
+                        <h3 className="font-bold text-xs text-slate-900 dark:text-slate-100 line-clamp-2 leading-snug">
                           {p.name}
                         </h3>
                       </div>
 
-                      <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
-                        <span className="text-xs font-black text-brand-700">
+                      <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
+                        <span className="text-xs font-black text-brand-700 dark:text-brand-400">
                           {formatRupiah(p.price)}
                         </span>
-                        <div className="p-1 rounded-lg bg-brand-50 text-brand-700 group-hover:bg-brand-600 group-hover:text-white transition-colors">
+                        <div className="p-1 rounded-lg bg-brand-50 dark:bg-brand-950/60 text-brand-700 dark:text-brand-300 group-hover:bg-brand-600 group-hover:text-white transition-colors">
                           <Plus className="w-3.5 h-3.5" />
                         </div>
                       </div>
@@ -416,13 +416,13 @@ const CashierPage = () => {
         {/* ============================================================== */}
         {/* BAGIAN KANAN: KERANJANG KASIR & LOYALTY MEMBER (5 Kolom)        */}
         {/* ============================================================== */}
-        <div className="lg:col-span-5 flex flex-col bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="lg:col-span-5 flex flex-col bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-200">
           {/* Header Keranjang Kasir */}
-          <div className="p-3.5 sm:p-4 border-b border-slate-100 flex items-center justify-between">
+          <div className="p-3.5 sm:p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <ShoppingCart className="w-5 h-5 text-brand-600" />
-              <h2 className="text-sm font-bold text-slate-900">Keranjang Kasir</h2>
-              <span className="bg-brand-100 text-brand-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+              <ShoppingCart className="w-5 h-5 text-brand-600 dark:text-brand-400" />
+              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">Keranjang Kasir</h2>
+              <span className="bg-brand-100 text-brand-800 dark:bg-brand-950/80 dark:text-brand-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
                 {cart.reduce((sum, item) => sum + item.quantity, 0)} item
               </span>
             </div>
@@ -430,7 +430,7 @@ const CashierPage = () => {
               <button
                 type="button"
                 onClick={clearCart}
-                className="text-[11px] font-semibold text-rose-600 hover:text-rose-700 hover:underline"
+                className="text-[11px] font-semibold text-rose-600 dark:text-rose-400 hover:text-rose-700 hover:underline"
               >
                 Kosongkan
               </button>
@@ -440,7 +440,7 @@ const CashierPage = () => {
           {/* ============================================================== */}
           {/* SEKSI LOYALTY MEMBER DI ATAS KERANJANG                          */}
           {/* ============================================================== */}
-          <div className="p-3 bg-slate-50 border-b border-slate-200">
+          <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
             {!selectedMember ? (
               <div className="relative">
                 <div className="flex items-center gap-2">
@@ -451,7 +451,7 @@ const CashierPage = () => {
                       value={memberQuery}
                       onChange={(e) => setMemberQuery(e.target.value)}
                       placeholder="Cari Member (No HP / Kode / Nama)..."
-                      className="w-full pl-8 pr-3 py-1.5 bg-white text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      className="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500"
                     />
                     {isSearchingMember && (
                       <Loader2 className="w-3.5 h-3.5 text-slate-400 animate-spin absolute right-3 top-2.5" />
@@ -461,7 +461,7 @@ const CashierPage = () => {
                   <button
                     type="button"
                     onClick={() => setIsQuickRegisterOpen(true)}
-                    className="px-2.5 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded-xl text-xs font-semibold flex items-center space-x-1 shrink-0 transition-colors"
+                    className="px-2.5 py-1.5 bg-brand-50 dark:bg-brand-950/60 hover:bg-brand-100 dark:hover:bg-brand-900/60 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800 rounded-xl text-xs font-semibold flex items-center space-x-1 shrink-0 transition-colors"
                   >
                     <UserPlus className="w-3.5 h-3.5" />
                     <span>+ Member</span>
@@ -470,24 +470,24 @@ const CashierPage = () => {
 
                 {/* Autocomplete Dropdown */}
                 {memberSearchResults.length > 0 && (
-                  <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl z-20 max-h-48 overflow-y-auto divide-y divide-slate-100">
+                  <div className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl z-20 max-h-48 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700/60">
                     {memberSearchResults.map((m) => (
                       <div
                         key={m.id}
                         onClick={() => handleSelectMember(m)}
-                        className="p-2.5 hover:bg-brand-50/70 cursor-pointer flex items-center justify-between text-xs transition-colors"
+                        className="p-2.5 hover:bg-brand-50/70 dark:hover:bg-slate-700/60 cursor-pointer flex items-center justify-between text-xs transition-colors"
                       >
                         <div>
-                          <div className="font-bold text-slate-900">{m.name}</div>
-                          <div className="text-[11px] text-slate-500 font-mono">
+                          <div className="font-bold text-slate-900 dark:text-slate-100">{m.name}</div>
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                             {m.phone} • {m.member_code}
                           </div>
                         </div>
                         <div className="text-right">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300">
                             {m.tier}
                           </span>
-                          <div className="text-[11px] font-bold text-amber-600 mt-0.5">
+                          <div className="text-[11px] font-bold text-amber-600 dark:text-amber-400 mt-0.5">
                             {m.points} Pts
                           </div>
                         </div>
@@ -498,20 +498,20 @@ const CashierPage = () => {
               </div>
             ) : (
               /* KARTU MEMBER AKTIF DI KASIR */
-              <div className="p-2.5 bg-white border border-brand-200 rounded-2xl shadow-sm space-y-2">
+              <div className="p-2.5 bg-white dark:bg-slate-800/80 border border-brand-200 dark:border-brand-800/60 rounded-2xl shadow-sm space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <div className="p-1.5 bg-brand-50 text-brand-600 rounded-xl">
+                    <div className="p-1.5 bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 rounded-xl">
                       <Award className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="font-bold text-xs text-slate-900 flex items-center space-x-1.5">
+                      <div className="font-bold text-xs text-slate-900 dark:text-slate-100 flex items-center space-x-1.5">
                         <span>{selectedMember.name}</span>
-                        <span className="px-1.5 py-0.2 rounded text-[10px] font-black uppercase bg-amber-100 text-amber-800 border border-amber-200">
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-black uppercase bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
                           {selectedMember.tier}
                         </span>
                       </div>
-                      <div className="text-[11px] text-slate-500 font-mono">
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                         {selectedMember.phone} • {selectedMember.member_code}
                       </div>
                     </div>
@@ -521,24 +521,24 @@ const CashierPage = () => {
                     type="button"
                     onClick={handleRemoveMember}
                     title="Lepas Member"
-                    className="p-1 text-slate-400 hover:text-rose-600 rounded-lg transition-colors"
+                    className="p-1 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
 
                 {/* Saldo Poin & Penukaran Diskon */}
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <div className="flex items-center space-x-1 font-bold text-amber-600">
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
+                  <div className="flex items-center space-x-1 font-bold text-amber-600 dark:text-amber-400">
                     <Coins className="w-3.5 h-3.5 text-amber-500" />
                     <span>Saldo: {selectedMember.points} Pts</span>
-                    <span className="text-slate-400 font-normal">
+                    <span className="text-slate-400 dark:text-slate-500 font-normal">
                       (≈ {formatRupiah(selectedMember.points * 100)})
                     </span>
                   </div>
 
                   {selectedMember.points >= 10 && subtotalAmount > 0 && (
-                    <label className="flex items-center space-x-1.5 text-xs font-semibold text-brand-700 cursor-pointer select-none">
+                    <label className="flex items-center space-x-1.5 text-xs font-semibold text-brand-700 dark:text-brand-400 cursor-pointer select-none">
                       <input
                         type="checkbox"
                         checked={isRedeemingPoints}
@@ -552,7 +552,7 @@ const CashierPage = () => {
 
                 {/* Preview perolehan poin transaksi ini */}
                 {estimatedPointsEarned > 0 && (
-                  <div className="text-[11px] text-emerald-700 bg-emerald-50/80 px-2.5 py-1 rounded-xl flex items-center justify-between">
+                  <div className="text-[11px] text-emerald-700 dark:text-emerald-300 bg-emerald-50/80 dark:bg-emerald-950/60 px-2.5 py-1 rounded-xl flex items-center justify-between">
                     <span>Estimasi poin belanja ini:</span>
                     <span className="font-bold">+{estimatedPointsEarned} Pts</span>
                   </div>
@@ -562,46 +562,46 @@ const CashierPage = () => {
           </div>
 
           {/* Daftar Barang di Keranjang */}
-          <div className="flex-1 p-4 overflow-y-auto divide-y divide-slate-100">
+          <div className="flex-1 p-4 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
             {cart.length > 0 ? (
               cart.map((item) => (
                 <div key={item.product_id} className="py-2.5 flex items-center justify-between text-xs">
                   <div className="flex-1 pr-2">
-                    <div className="font-semibold text-slate-900">{item.name}</div>
-                    <div className="text-[11px] text-slate-500 font-medium">
+                    <div className="font-semibold text-slate-900 dark:text-slate-100">{item.name}</div>
+                    <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                       {formatRupiah(item.price)}
                     </div>
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                    <div className="flex items-center border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-800">
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.product_id, -1)}
-                        className="p-1 text-slate-600 hover:bg-slate-200 transition-colors"
+                        className="p-1 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                       >
                         <Minus className="w-3.5 h-3.5" />
                       </button>
-                      <span className="w-7 text-center font-bold text-slate-900">
+                      <span className="w-7 text-center font-bold text-slate-900 dark:text-slate-100">
                         {item.quantity}
                       </span>
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.product_id, 1)}
-                        className="p-1 text-slate-600 hover:bg-slate-200 transition-colors"
+                        className="p-1 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>
                     </div>
 
-                    <div className="w-16 text-right font-bold text-slate-900">
+                    <div className="w-16 text-right font-bold text-slate-900 dark:text-slate-100">
                       {formatRupiah(item.subtotal)}
                     </div>
 
                     <button
                       type="button"
                       onClick={() => removeFromCart(item.product_id)}
-                      className="p-1 text-slate-400 hover:text-rose-600 rounded-lg transition-colors"
+                      className="p-1 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -610,17 +610,17 @@ const CashierPage = () => {
               ))
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-slate-400 py-10">
-                <ShoppingCart className="w-8 h-8 mb-2 stroke-1 text-slate-300" />
+                <ShoppingCart className="w-8 h-8 mb-2 stroke-1 text-slate-300 dark:text-slate-600" />
                 <span className="text-xs">Keranjang masih kosong.</span>
-                <span className="text-[11px] text-slate-400 mt-0.5">Pilih barang dari katalog di sebelah kiri.</span>
+                <span className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Pilih barang dari katalog di sebelah kiri.</span>
               </div>
             )}
           </div>
 
           {/* Kotak Bagian Pembayaran & Tombol Bayar */}
-          <div className="p-4 bg-slate-50/80 border-t border-slate-200 space-y-2.5">
+          <div className="p-4 bg-slate-50/80 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 space-y-2.5">
             {checkoutError && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start space-x-2 text-xs text-red-600">
+              <div className="p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-xl flex items-start space-x-2 text-xs text-red-600 dark:text-red-400">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{checkoutError}</span>
               </div>
@@ -628,13 +628,13 @@ const CashierPage = () => {
 
             {/* Rincian Finansial */}
             <div className="space-y-1 text-xs">
-              <div className="flex justify-between text-slate-600">
+              <div className="flex justify-between text-slate-600 dark:text-slate-400">
                 <span>Subtotal Barang:</span>
-                <span className="font-semibold text-slate-800">{formatRupiah(subtotalAmount)}</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">{formatRupiah(subtotalAmount)}</span>
               </div>
 
               {discountAmount > 0 && (
-                <div className="flex justify-between text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-lg">
+                <div className="flex justify-between text-emerald-700 dark:text-emerald-300 font-semibold bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-lg">
                   <span className="flex items-center space-x-1">
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Diskon Poin ({pointsToRedeem} Pts):</span>
@@ -643,11 +643,11 @@ const CashierPage = () => {
                 </div>
               )}
 
-              <div className="flex items-center justify-between pt-1 border-t border-slate-200">
-                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+              <div className="flex items-center justify-between pt-1 border-t border-slate-200 dark:border-slate-700">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Total Tagihan:
                 </span>
-                <span className="text-xl font-black text-brand-700">
+                <span className="text-xl font-black text-brand-700 dark:text-brand-400">
                   {formatRupiah(netTotal)}
                 </span>
               </div>
@@ -655,7 +655,7 @@ const CashierPage = () => {
 
             {/* Input Uang Tunai */}
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Uang Tunai Diserahkan (Cash)
               </label>
               <div className="relative">
@@ -667,7 +667,7 @@ const CashierPage = () => {
                   value={cashPaid}
                   onChange={(e) => setCashPaid(e.target.value)}
                   placeholder="0"
-                  className="w-full pl-9 pr-3 py-2 text-sm font-bold bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full pl-9 pr-3 py-2 text-sm font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
 
@@ -677,35 +677,35 @@ const CashierPage = () => {
                   type="button"
                   onClick={setExactCash}
                   disabled={netTotal === 0}
-                  className="p-1.5 text-[10px] font-bold bg-white hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-700 disabled:opacity-40"
+                  className="p-1.5 text-[10px] font-bold bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 disabled:opacity-40 transition-colors"
                 >
                   Uang Pas
                 </button>
                 <button
                   type="button"
                   onClick={() => addCashAmount(10000)}
-                  className="p-1.5 text-[10px] font-bold bg-white hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-700"
+                  className="p-1.5 text-[10px] font-bold bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 transition-colors"
                 >
                   +10rb
                 </button>
                 <button
                   type="button"
                   onClick={() => addCashAmount(20000)}
-                  className="p-1.5 text-[10px] font-bold bg-white hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-700"
+                  className="p-1.5 text-[10px] font-bold bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 transition-colors"
                 >
                   +20rb
                 </button>
                 <button
                   type="button"
                   onClick={() => addCashAmount(50000)}
-                  className="p-1.5 text-[10px] font-bold bg-white hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-700"
+                  className="p-1.5 text-[10px] font-bold bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 transition-colors"
                 >
                   +50rb
                 </button>
                 <button
                   type="button"
                   onClick={() => addCashAmount(100000)}
-                  className="p-1.5 text-[10px] font-bold bg-white hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-700"
+                  className="p-1.5 text-[10px] font-bold bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 transition-colors"
                 >
                   +100rb
                 </button>
@@ -714,10 +714,10 @@ const CashierPage = () => {
 
             {/* Display Uang Kembalian */}
             <div className="flex items-center justify-between text-xs py-1">
-              <span className="font-semibold text-slate-600">Uang Kembalian:</span>
+              <span className="font-semibold text-slate-600 dark:text-slate-400">Uang Kembalian:</span>
               <span
                 className={`font-black ${
-                  changeReturned >= 0 ? 'text-slate-900' : 'text-red-600'
+                  changeReturned >= 0 ? 'text-slate-900 dark:text-slate-100' : 'text-red-600 dark:text-red-400'
                 }`}
               >
                 {changeReturned >= 0
@@ -760,22 +760,22 @@ const CashierPage = () => {
               onClick={() => setIsQuickRegisterOpen(false)}
             />
 
-            <div className="relative bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 z-10">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div className="flex items-center space-x-2 text-brand-700">
-                  <UserPlus className="w-5 h-5 text-brand-600" />
-                  <h3 className="font-bold text-sm text-slate-900">Daftar Member Cepat</h3>
+            <div className="relative bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 dark:border-slate-800 z-10 transition-colors duration-200">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center space-x-2 text-brand-700 dark:text-brand-400">
+                  <UserPlus className="w-5 h-5 text-brand-600 dark:text-brand-400" />
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">Daftar Member Cepat</h3>
                 </div>
                 <button
                   onClick={() => setIsQuickRegisterOpen(false)}
-                  className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+                  className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {quickRegError && (
-                <div className="mt-3 p-2.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center space-x-2">
+                <div className="mt-3 p-2.5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-xs flex items-center space-x-2">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{quickRegError}</span>
                 </div>
@@ -783,7 +783,7 @@ const CashierPage = () => {
 
               <form onSubmit={handleQuickRegister} className="mt-3 space-y-3 text-xs">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Nama Lengkap <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -792,12 +792,12 @@ const CashierPage = () => {
                     value={quickRegForm.name}
                     onChange={(e) => setQuickRegForm({ ...quickRegForm, name: e.target.value })}
                     placeholder="Contoh: Rahmat Hidayat"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Nomor WhatsApp / HP <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -806,22 +806,22 @@ const CashierPage = () => {
                     value={quickRegForm.phone}
                     onChange={(e) => setQuickRegForm({ ...quickRegForm, phone: e.target.value })}
                     placeholder="Contoh: 08123456789"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Email (Opsional)</label>
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Email (Opsional)</label>
                   <input
                     type="email"
                     value={quickRegForm.email}
                     onChange={(e) => setQuickRegForm({ ...quickRegForm, email: e.target.value })}
                     placeholder="email@contoh.com"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
                   />
                 </div>
 
-                <div className="p-2.5 bg-brand-50 rounded-xl text-[11px] text-brand-800">
+                <div className="p-2.5 bg-brand-50 dark:bg-brand-950/60 rounded-xl text-[11px] text-brand-800 dark:text-brand-300">
                   ✨ Otomatis mendapatkan <span className="font-bold">10 Poin Selamat Datang</span> dan Tier Bronze.
                 </div>
 
@@ -829,7 +829,7 @@ const CashierPage = () => {
                   <button
                     type="button"
                     onClick={() => setIsQuickRegisterOpen(false)}
-                    className="px-3 py-1.5 text-slate-600 hover:bg-slate-100 rounded-lg font-medium"
+                    className="px-3 py-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg font-medium"
                   >
                     Batal
                   </button>

@@ -63,8 +63,11 @@ const LoginPage = () => {
           <p className="text-xs text-slate-400 mt-1">Sistem Otentikasi & Manajemen Kasir Enterprise</p>
         </div>
 
-        {/* Login Form Box */}
-        <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl shadow-black/40 border border-white/20">
+        {/* Login Form Box - Tetap Terang & Diisolasi Penuh dari Tema Sistem */}
+        <div 
+          className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl shadow-black/40 border border-white/20 text-slate-900"
+          style={{ colorScheme: 'light' }}
+        >
           <div className="mb-6">
             <h2 className="text-lg font-bold text-slate-900">Masuk ke Akun Anda</h2>
             <p className="text-xs text-slate-500">Silakan masukkan username dan password terdaftar.</p>
@@ -93,7 +96,7 @@ const LoginPage = () => {
                   disabled={loading}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 text-sm text-slate-900 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all placeholder:text-slate-400"
                   placeholder="Masukkan username"
                 />
               </div>
@@ -113,7 +116,7 @@ const LoginPage = () => {
                   disabled={loading}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-11 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-11 py-2.5 text-sm text-slate-900 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all placeholder:text-slate-400"
                   placeholder="Masukkan password"
                 />
                 <button

@@ -7,7 +7,7 @@
 // 3. ProtectedRoute: Menjaga halaman agar hanya bisa dibuka sesuai peran ('owner' atau 'cashier').
 // ==============================================================================
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 
@@ -30,14 +30,16 @@ import UnauthorizedPage from './pages/UnauthorizedPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Layout Utama: Sidebar di sebelah kiri, Header profil di atas kanan, dan area konten
-const AppLayout = () => {
+const AppLayout = ({ children }) => {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
-      <Navbar />
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col md:flex-row transition-colors duration-200">
+      <Navbar isMobileOpen={isMobileOpen} setIsMobileOpen={setIsMobileOpen} />
       <div className="flex-1 flex flex-col min-w-0">
-        <TopHeader />
+        <TopHeader onOpenMobileMenu={() => setIsMobileOpen(true)} />
         <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-          <Outlet />
+          {children || <Outlet />}
         </main>
       </div>
     </div>
@@ -75,15 +77,11 @@ const App = () => {
       <Route
         path="/unauthorized"
         element={
-          <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
-            <Navbar />
-            <div className="flex-1 flex flex-col min-w-0">
-              <TopHeader />
-              <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex items-center justify-center">
-                <UnauthorizedPage />
-              </main>
+          <AppLayout>
+            <div className="flex items-center justify-center py-12">
+              <UnauthorizedPage />
             </div>
-          </div>
+          </AppLayout>
         }
       />
 

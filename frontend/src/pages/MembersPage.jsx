@@ -6,35 +6,10 @@
 // - Cashier: Melihat daftar, pencarian member, pendaftaran member baru, dan melihat riwayat poin.
 // ==============================================================================
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import apiClient from '../api/axios';
 import { useAuth } from '../contexts/AuthContext';
-import {
-  Award,
-  Users,
-  Search,
-  Plus,
-  Coins,
-  Sparkles,
-  CreditCard,
-  Phone,
-  Mail,
-  MapPin,
-  Calendar,
-  CheckCircle2,
-  AlertCircle,
-  X,
-  Edit2,
-  SlidersHorizontal,
-  History,
-  Trash2,
-  TrendingUp,
-  RefreshCw,
-  Gift,
-  HelpCircle,
-  ChevronDown,
-  ChevronUp
-} from 'lucide-react';
+import { Award, Users, Search, Plus, Coins, Sparkles, CreditCard, Phone, Mail, CheckCircle2, AlertCircle, X, Edit2, SlidersHorizontal, History, Trash2, TrendingUp, RefreshCw, HelpCircle } from 'lucide-react';
 
 const MembersPage = () => {
   const { role } = useAuth();
@@ -339,11 +314,11 @@ const MembersPage = () => {
       {/* ============================================================== */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center space-x-2">
-            <Award className="w-7 h-7 text-brand-600" />
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+            <Award className="w-7 h-7 text-brand-600 dark:text-brand-400" />
             <span>Loyalty Member & Program Poin</span>
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             Kelola pelanggan setia toko, pantau akumulasi poin belanja, dan aturan tier keanggotaan.
           </p>
         </div>
@@ -351,9 +326,9 @@ const MembersPage = () => {
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setIsGuideModalOpen(true)}
-            className="inline-flex items-center justify-center space-x-2 px-3.5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-2xl text-xs sm:text-sm font-semibold transition-all active:scale-95 shadow-sm"
+            className="inline-flex items-center justify-center space-x-2 px-3.5 py-2.5 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-2xl text-xs sm:text-sm font-semibold transition-all active:scale-95 shadow-sm"
           >
-            <HelpCircle className="w-4 h-4 text-indigo-600" />
+            <HelpCircle className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             <span>Panduan Poin & Kasir</span>
           </button>
 
@@ -379,68 +354,68 @@ const MembersPage = () => {
       {/* ============================================================== */}
       {summary && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center space-x-4">
-            <div className="p-3.5 bg-blue-50 text-blue-600 rounded-2xl">
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center space-x-4 transition-colors duration-200">
+            <div className="p-3.5 bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 rounded-2xl">
               <Users className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-xs font-medium text-slate-500">Total Member Terdaftar</div>
-              <div className="text-xl font-bold text-slate-900 mt-0.5">
+              <div className="text-xs font-medium text-slate-500 dark:text-slate-400">Total Member Terdaftar</div>
+              <div className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-0.5">
                 {summary.total_members} <span className="text-xs font-normal text-slate-400">orang</span>
               </div>
-              <div className="text-[11px] text-emerald-600 font-medium mt-0.5">
+              <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mt-0.5">
                 {summary.active_members} member aktif
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center space-x-4">
-            <div className="p-3.5 bg-amber-50 text-amber-600 rounded-2xl">
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center space-x-4 transition-colors duration-200">
+            <div className="p-3.5 bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 rounded-2xl">
               <Coins className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-xs font-medium text-slate-500">Total Saldo Poin Beredar</div>
-              <div className="text-xl font-bold text-amber-600 mt-0.5">
+              <div className="text-xs font-medium text-slate-500 dark:text-slate-400">Total Saldo Poin Beredar</div>
+              <div className="text-xl font-bold text-amber-600 dark:text-amber-400 mt-0.5">
                 {Number(summary.total_points_in_circulation).toLocaleString('id-ID')}{' '}
                 <span className="text-xs font-normal text-slate-400">Pts</span>
               </div>
-              <div className="text-[11px] text-slate-500 font-medium mt-0.5">
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
                 Nilai diskon: {formatRupiah(summary.total_points_in_circulation * 100)}
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center space-x-4">
-            <div className="p-3.5 bg-emerald-50 text-emerald-600 rounded-2xl">
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center space-x-4 transition-colors duration-200">
+            <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-2xl">
               <Sparkles className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-xs font-medium text-slate-500">Poin Pernah Ditukar</div>
-              <div className="text-xl font-bold text-emerald-600 mt-0.5">
+              <div className="text-xs font-medium text-slate-500 dark:text-slate-400">Poin Pernah Ditukar</div>
+              <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
                 {Number(summary.total_points_redeemed).toLocaleString('id-ID')}{' '}
                 <span className="text-xs font-normal text-slate-400">Pts</span>
               </div>
-              <div className="text-[11px] text-slate-500 font-medium mt-0.5">
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
                 Diskon dinikmati: {formatRupiah(summary.total_points_redeemed * 100)}
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center space-x-4">
-            <div className="p-3.5 bg-purple-50 text-purple-600 rounded-2xl">
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center space-x-4 transition-colors duration-200">
+            <div className="p-3.5 bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 rounded-2xl">
               <TrendingUp className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-xs font-medium text-slate-500">Tier Terbanyak</div>
-              <div className="text-sm font-bold text-slate-900 mt-1 flex items-center space-x-1.5">
-                <span className="px-2 py-0.5 rounded-lg text-xs font-semibold bg-amber-100 text-amber-800">
+              <div className="text-xs font-medium text-slate-500 dark:text-slate-400">Tier Terbanyak</div>
+              <div className="text-sm font-bold text-slate-900 dark:text-slate-100 mt-1 flex items-center space-x-1.5">
+                <span className="px-2 py-0.5 rounded-lg text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300">
                   Gold: {summary.tier_distribution?.Gold || 0}
                 </span>
-                <span className="px-2 py-0.5 rounded-lg text-xs font-semibold bg-slate-200 text-slate-800">
+                <span className="px-2 py-0.5 rounded-lg text-xs font-semibold bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200">
                   Silver: {summary.tier_distribution?.Silver || 0}
                 </span>
               </div>
-              <div className="text-[11px] text-slate-400 mt-0.5">
+              <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
                 Bronze: {summary.tier_distribution?.Bronze || 0} | Plat: {summary.tier_distribution?.Platinum || 0}
               </div>
             </div>
@@ -451,7 +426,7 @@ const MembersPage = () => {
       {/* ============================================================== */}
       {/* 3. BAR FILTER & PENCARIAN                                       */}
       {/* ============================================================== */}
-      <div className="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+      <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between transition-colors duration-200">
         <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
           <input
@@ -459,7 +434,7 @@ const MembersPage = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari member (nama, no. HP, kode)..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 text-xs sm:text-sm border border-slate-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all"
+            className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all"
           />
         </div>
 
@@ -467,7 +442,7 @@ const MembersPage = () => {
           <select
             value={tierFilter}
             onChange={(e) => setTierFilter(e.target.value)}
-            className="px-3 py-2 bg-slate-50 text-xs sm:text-sm border border-slate-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className="px-3 py-2 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             <option value="">Semua Tier</option>
             <option value="Bronze">Bronze (1x Poin)</option>
@@ -479,7 +454,7 @@ const MembersPage = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 bg-slate-50 text-xs sm:text-sm border border-slate-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className="px-3 py-2 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             <option value="">Semua Status</option>
             <option value="true">Aktif</option>
@@ -492,7 +467,7 @@ const MembersPage = () => {
               fetchSummary();
             }}
             title="Muat Ulang"
-            className="p-2 text-slate-500 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl transition-colors"
+            className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-2xl transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -502,12 +477,12 @@ const MembersPage = () => {
       {/* ============================================================== */}
       {/* 4. TABEL DAFTAR MEMBER                                         */}
       {/* ============================================================== */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-200">
         <div className="overflow-x-auto">
         {/* overflow-x-auto digunakan untuk menampilkan scrollbar kiri dan kanan */}
           <table className="w-full text-left border-collapse text-xs sm:text-sm">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-xs uppercase tracking-wider">
+              <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-semibold text-xs uppercase tracking-wider">
                 <th className="py-3.5 px-4 sm:px-6">Member & Kontak</th>
                 <th className="py-3.5 px-4">Kode Member</th>
                 <th className="py-3.5 px-4">
@@ -542,11 +517,11 @@ const MembersPage = () => {
                 </tr>
               ) : (
                 members.map((member) => (
-                  <tr key={member.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr key={member.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
                     {/* Kolom Nama & Kontak */}
                     <td className="py-3.5 px-4 sm:px-6">
-                      <div className="font-semibold text-slate-900">{member.name}</div>
-                      <div className="flex items-center space-x-3 text-slate-500 text-xs mt-0.5">
+                      <div className="font-semibold text-slate-900 dark:text-slate-100">{member.name}</div>
+                      <div className="flex items-center space-x-3 text-slate-500 dark:text-slate-400 text-xs mt-0.5">
                         <span className="flex items-center space-x-1">
                           <Phone className="w-3 h-3 text-slate-400" />
                           <span>{member.phone}</span>
@@ -562,7 +537,7 @@ const MembersPage = () => {
 
                     {/* Kolom Kode Member */}
                     <td className="py-3.5 px-4">
-                      <span className="font-mono text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg border border-slate-200">
+                      <span className="font-mono text-xs font-semibold px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg border border-slate-200 dark:border-slate-700">
                         {member.member_code}
                       </span>
                     </td>
@@ -676,7 +651,7 @@ const MembersPage = () => {
           <div className="flex min-h-screen items-center justify-center p-4">
             <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsAddModalOpen(false)} />
 
-            <div className="relative bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 z-10">
+            <div className="relative bg-white dark:bg-slate-700 rounded-xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 z-10">
               <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                 <div className="flex items-center space-x-2 text-brand-700">
                   <Award className="w-5 h-5 text-brand-600" />
@@ -699,7 +674,7 @@ const MembersPage = () => {
 
               <form onSubmit={handleCreateMember} className="mt-4 space-y-4 text-xs sm:text-sm">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">
+                  <label className="block  font-semibold text-slate-700 mb-1">
                     Nama Lengkap Member <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -708,7 +683,7 @@ const MembersPage = () => {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Contoh: Rahmat Hidayat"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    className="w-full px-3.5 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:bg-slate-100 dark:disabled:bg-slate-800/40 disabled:text-slate-500"
                   />
                 </div>
 
@@ -723,7 +698,7 @@ const MembersPage = () => {
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       placeholder="Contoh: 08123456789"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      className="w-full px-3.5 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:bg-slate-100 dark:disabled:bg-slate-800/40 disabled:text-slate-500"
                     />
                   </div>
 
@@ -734,7 +709,7 @@ const MembersPage = () => {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="email@contoh.com"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      className="w-full px-3.5 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:bg-slate-100 dark:disabled:bg-slate-800/40 disabled:text-slate-500"
                     />
                   </div>
                 </div>
@@ -745,7 +720,7 @@ const MembersPage = () => {
                     <select
                       value={formData.tier}
                       onChange={(e) => setFormData({ ...formData, tier: e.target.value })}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      className="w-full px-3.5 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:bg-slate-100 dark:disabled:bg-slate-800/40 disabled:text-slate-500"
                     >
                       <option value="Bronze">Bronze (Pengali 1.0x)</option>
                       <option value="Silver">Silver (Pengali 1.2x)</option>
@@ -761,7 +736,7 @@ const MembersPage = () => {
                       min="0"
                       value={formData.initial_points}
                       onChange={(e) => setFormData({ ...formData, initial_points: e.target.value })}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      className="w-full px-3.5 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:bg-slate-100 dark:disabled:bg-slate-800/40 disabled:text-slate-500"
                     />
                   </div>
                 </div>
@@ -773,7 +748,7 @@ const MembersPage = () => {
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                     placeholder="Alamat domisili member..."
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    className="w-full px-3.5 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:bg-slate-100 dark:disabled:bg-slate-800/40 disabled:text-slate-500"
                   />
                 </div>
 
@@ -788,7 +763,7 @@ const MembersPage = () => {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold shadow-md shadow-brand-600/20 disabled:opacity-50"
+                    className="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold shadow-md shadow-brand-500/20 disabled:opacity-50"
                   >
                     {submitting ? 'Menyimpan...' : 'Daftarkan Member'}
                   </button>
@@ -997,7 +972,7 @@ const MembersPage = () => {
                   <span>Jejak Riwayat Mutasi Poin (Audit Trail)</span>
                 </h4>
 
-                <div className="border border-slate-200 rounded-2xl overflow-hidden max-h-60 overflow-y-auto">
+                <div className="border border-slate-200 rounded-2xl overflow-hidden max-h-60 overflow-y-auto overflow-x-auto">
                   {loadingDetail ? (
                     <div className="text-center py-8 text-xs text-slate-400">Memuat riwayat poin...</div>
                   ) : !memberDetail?.point_histories || memberDetail.point_histories.length === 0 ? (
@@ -1051,7 +1026,7 @@ const MembersPage = () => {
                             <td className="py-2 px-3 font-semibold text-slate-800">
                               {hist.balance_after} Pts
                             </td>
-                            <td className="py-2 px-3 text-slate-600 max-w-xs truncate" title={hist.description}>
+                            <td className="py-2 px-3 text-slate-600 max-w-md truncate" title={hist.description}>
                               {hist.description || '-'}
                             </td>
                           </tr>
