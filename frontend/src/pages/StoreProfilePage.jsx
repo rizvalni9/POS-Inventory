@@ -57,7 +57,7 @@ const StoreProfilePage = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-5xl mx-auto">
       <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-200">
         <h1 className="text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Konfigurasi Profil Usaha & Toko</h1>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">

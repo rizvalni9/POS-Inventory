@@ -342,7 +342,7 @@ const UsersManagementPage = () => {
             />
           </div>
 
-          <div className="flex justify-end space-x-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex justify-end space-x-3 pt-3 border-t border-slate-200 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setIsCreateModalOpen(false)}

@@ -107,3 +107,60 @@
     border-color: #000000 !important;
   }
 }
+
+/* ============================================================== */
+/* ANIMASI DERING TELEPON MODERN (MODERN PHONE RINGTONE SHAKE)    */
+/* ============================================================== */
+@keyframes modernPhoneRing {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  5% {
+    transform: rotate(-24deg) scale(1.25);
+  }
+  10% {
+    transform: rotate(24deg) scale(1.25);
+  }
+  15% {
+    transform: rotate(-22deg) scale(1.25);
+  }
+  20% {
+    transform: rotate(22deg) scale(1.25);
+  }
+  25% {
+    transform: rotate(-16deg) scale(1.22);
+  }
+  30% {
+    transform: rotate(16deg) scale(1.22);
+  }
+  35% {
+    transform: rotate(-10deg) scale(1.2);
+  }
+  40% {
+    transform: rotate(10deg) scale(1.2);
+  }
+  45% {
+    transform: rotate(-4deg) scale(1.18);
+  }
+  50% {
+    transform: rotate(4deg) scale(1.18);
+  }
+  55% {
+    transform: rotate(0deg) scale(1.18);
+  }
+  100% {
+    transform: rotate(0deg) scale(1.18);
+  }
+}
+
+.phone-ring-icon {
+  display: inline-block;
+  transform-origin: center center;
+  will-change: transform;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.group:hover .phone-ring-icon,
+button:hover .phone-ring-icon {
+  animation: modernPhoneRing 0.9s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite !important;
+}

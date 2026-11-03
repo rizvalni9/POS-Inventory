@@ -14,9 +14,10 @@
 // 6. Checkout Atomik: Mengirim transaksi ke backend dan langsung memunculkan modal nota struk.
 // ==============================================================================
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import apiClient from '../api/axios';
 import ReceiptModal from '../components/ReceiptModal';
+import Modal from '../components/Modal';
 import {
   ShoppingCart,
   Search,
@@ -464,7 +465,7 @@ const CashierPage = () => {
                     className="px-2.5 py-1.5 bg-brand-50 dark:bg-brand-950/60 hover:bg-brand-100 dark:hover:bg-brand-900/60 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800 rounded-xl text-xs font-semibold flex items-center space-x-1 shrink-0 transition-colors"
                   >
                     <UserPlus className="w-3.5 h-3.5" />
-                    <span>+ Member</span>
+                    <span>Member</span>
                   </button>
                 </div>
 
@@ -752,100 +753,86 @@ const CashierPage = () => {
       {/* ============================================================== */}
       {/* MODAL PENDAFTARAN CEPAT MEMBER (QUICK REGISTER)                */}
       {/* ============================================================== */}
-      {isQuickRegisterOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex min-h-screen items-center justify-center p-4">
-            <div
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"
-              onClick={() => setIsQuickRegisterOpen(false)}
-            />
-
-            <div className="relative bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 dark:border-slate-800 z-10 transition-colors duration-200">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center space-x-2 text-brand-700 dark:text-brand-400">
-                  <UserPlus className="w-5 h-5 text-brand-600 dark:text-brand-400" />
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">Daftar Member Cepat</h3>
-                </div>
-                <button
-                  onClick={() => setIsQuickRegisterOpen(false)}
-                  className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {quickRegError && (
-                <div className="mt-3 p-2.5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-xs flex items-center space-x-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{quickRegError}</span>
-                </div>
-              )}
-
-              <form onSubmit={handleQuickRegister} className="mt-3 space-y-3 text-xs">
-                <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Nama Lengkap <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={quickRegForm.name}
-                    onChange={(e) => setQuickRegForm({ ...quickRegForm, name: e.target.value })}
-                    placeholder="Contoh: Rahmat Hidayat"
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Nomor WhatsApp / HP <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    value={quickRegForm.phone}
-                    onChange={(e) => setQuickRegForm({ ...quickRegForm, phone: e.target.value })}
-                    placeholder="Contoh: 08123456789"
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Email (Opsional)</label>
-                  <input
-                    type="email"
-                    value={quickRegForm.email}
-                    onChange={(e) => setQuickRegForm({ ...quickRegForm, email: e.target.value })}
-                    placeholder="email@contoh.com"
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                  />
-                </div>
-
-                <div className="p-2.5 bg-brand-50 dark:bg-brand-950/60 rounded-xl text-[11px] text-brand-800 dark:text-brand-300">
-                  ✨ Otomatis mendapatkan <span className="font-bold">10 Poin Selamat Datang</span> dan Tier Bronze.
-                </div>
-
-                <div className="pt-2 flex justify-end space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsQuickRegisterOpen(false)}
-                    className="px-3 py-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg font-medium"
-                  >
-                    Batal
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={quickRegSubmitting}
-                    className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold shadow-md shadow-brand-600/20 disabled:opacity-50"
-                  >
-                    {quickRegSubmitting ? 'Mendaftarkan...' : 'Simpan & Pilih'}
-                  </button>
-                </div>
-              </form>
-            </div>
+      <Modal
+        isOpen={isQuickRegisterOpen}
+        onClose={() => setIsQuickRegisterOpen(false)}
+        title="Daftar Member Cepat"
+        icon={<UserPlus className="w-5 h-5" />}
+        maxWidth="max-w-md"
+      >
+        {/* Pesan Error Validasi */}
+        {quickRegError && (
+          <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-xs flex items-center space-x-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{quickRegError}</span>
           </div>
-        </div>
-      )}
+        )}
+        <form onSubmit={handleQuickRegister} className="space-y-4 text-xs sm:text-sm">
+          {/* Input Nama Lengkap */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Nama Lengkap <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={quickRegForm.name}
+              onChange={(e) => setQuickRegForm({ ...quickRegForm, name: e.target.value })}
+              placeholder="Contoh: Rahmat Hidayat"
+              className="w-full px-3.5 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+            />
+          </div>
+          {/* Input Nomor HP / WhatsApp */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Nomor WhatsApp / HP <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="tel"
+              required
+              value={quickRegForm.phone}
+              onChange={(e) => setQuickRegForm({ ...quickRegForm, phone: e.target.value })}
+              placeholder="Contoh: 08123456789"
+              className="w-full px-3.5 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+            />
+          </div>
+          {/* Input Email (Opsional) */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Email (Opsional)
+            </label>
+            <input
+              type="email"
+              value={quickRegForm.email}
+              onChange={(e) => setQuickRegForm({ ...quickRegForm, email: e.target.value })}
+              placeholder="email@contoh.com"
+              className="w-full px-3.5 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+            />
+          </div>
+          {/* Info Poin Selamat Datang */}
+          <div className="p-3 bg-brand-50 dark:bg-brand-950/60 rounded-xl text-xs text-brand-800 dark:text-brand-300 border border-brand-200/60 dark:border-brand-800/60">
+            ✨ Otomatis mendapatkan <span className="font-bold">10 Poin Selamat Datang</span> dan Tier Bronze.
+          </div>
+          {/* Tombol Footer Aksi */}
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end space-x-3">
+            <button
+              type="button"
+              onClick={() => setIsQuickRegisterOpen(false)}
+              className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={quickRegSubmitting}
+              className="inline-flex items-center space-x-2 px-5 py-2.5 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 active:scale-[0.98] rounded-xl shadow-md shadow-brand-500/20 transition-all disabled:opacity-50"
+            >
+              {quickRegSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+              <span>{quickRegSubmitting ? 'Mendaftarkan...' : 'Simpan & Pilih'}</span>
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Modal Popup Nota Cetak Belanja */}
       <ReceiptModal

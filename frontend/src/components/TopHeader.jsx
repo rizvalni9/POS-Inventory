@@ -46,6 +46,32 @@ const TopHeader = ({ onOpenMobileMenu }) => {
     }
   }
 
+  // Alasan membuat fungsi untuk tombol ubah password dan keluar yang disatukan pada tombol memunculkan menu dropdown icon pengguna dikanan yang tidak langsung ke dalam return kelas ini,  karena menurut saya mudah dibaca dan sesuai dengan kerangka berpikir awal saya jadi ketika diletakkan kode 2 button langsung di dalam return kelas ini akan membuat saya bigung, hal ini kebiasaan saya saat membangun aplikasi desktop dengan Java
+  function passBCOnly(){
+    if(role==='cashier'){
+      return (
+        <>
+        <button type="button" onClick={() => { setIsProfileOpen(false); setIsPasswordModalOpen(true)}} className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+          <KeyRound className="w-4 h-4 text-slate-500" />
+          <span>Ubah Password</span>
+        </button>
+        
+        <button type="button" onClick={() => { setIsProfileOpen(false); handleLogout(); }} className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors">
+          <LogOut className="w-4 h-4" />
+          <span>Keluar</span>
+        </button>
+        </>
+      )
+    }else{
+      return (
+        <button type="button" onClick={() => { setIsProfileOpen(false); handleLogout(); }} className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors">
+          <LogOut className="w-4 h-4" />
+          <span>Keluar</span>
+        </button>
+      );
+    }
+  }//Jika fungsi tidak digunakan maka buat langsung 2 button ini di dalam, di sana sudah ada saya sediakan kodenya dan hapus passBCOnly() disana
+
   // Menutup dropdown profil ketika mengeklik di luar menu
   function handleClickOutside(event) {
     if (profileRef.current && !profileRef.current.contains(event.target)) {
@@ -173,20 +199,20 @@ const TopHeader = ({ onOpenMobileMenu }) => {
 
               {/* Menu aksi */}
               <div className="p-2">
-                {/* Ubah password */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsProfileOpen(false);
-                    setIsPasswordModalOpen(true);
-                  }}
-                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                >
-                  <KeyRound className="w-4 h-4 text-slate-500" />
-                  <span>Ubah Password</span>
-                </button>
+                {/* Ubah password*/}
+                {/* NOTE: Jika menggunakan kode ini, hapus atau nonaktifkan method passBCOnly() */}
+                {/* {role === 'cashier' && (
+                  <button type="button" onClick={() => { 
+                      setIsProfileOpen(false);
+                      setIsPasswordModalOpen(true);
+                    }} className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    <KeyRound className="w-4 h-4 text-slate-500" />
+                    <span>Ubah Password</span>
+                  </button>
+                )} */}
 
-                {/* Logout */}
+                {/* Logout
                 <button
                   type="button"
                   onClick={() => {
@@ -197,7 +223,10 @@ const TopHeader = ({ onOpenMobileMenu }) => {
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Keluar</span>
-                </button>
+                </button> */}
+
+                {/* NOTE: Jika menggunakan tidak menggunakan kode diatas, hapus atau nonaktifkan 2 button diatas */}
+                {passBCOnly()}
               </div>
             </div>
           </div>

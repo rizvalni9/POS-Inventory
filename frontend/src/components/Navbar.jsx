@@ -10,19 +10,7 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import {
-  LayoutDashboard,
-  ShoppingCart,
-  Package,
-  ArrowDownToLine,
-  History,
-  Store,
-  Users,
-  Award,
-  X,
-  IndentIncrease,
-  IndentDecrease,
-} from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, ArrowDownToLine, History, Store, Users, Award, X, IndentIncrease, IndentDecrease, Phone } from 'lucide-react';
 
 const Navbar = ({ isMobileOpen = false, setIsMobileOpen = () => {} }) => {
   const { role } = useAuth();
@@ -147,6 +135,13 @@ const Navbar = ({ isMobileOpen = false, setIsMobileOpen = () => {} }) => {
     return `${base} ${state} px-3.5 py-2.5 space-x-3`;
   };
 
+  function handleWhatsapp(){
+    let numPhone = "6281268170410";
+    let textEncode= "Halo tim RNZ Developer, saya ingin berkonsultasi terkait pembuatan aplikasi baru, atau melaporkan kendala teknis pada aplikasi saya.";
+    let linkAPIwa = `https://wa.me/${numPhone}?text=${encodeURIComponent(textEncode)}`;
+    window.open(linkAPIwa, '_blank', 'noopener,noreferrer');
+  }
+
   return (
     <>
       {/* ============================================================== */}
@@ -177,6 +172,15 @@ const Navbar = ({ isMobileOpen = false, setIsMobileOpen = () => {} }) => {
                     POS & Inventory System V.1.0
                   </span>
                 </div>
+                <button
+                  type="button"
+                  onClick={()=>handleWhatsapp()}
+                  title="Hubungi Developer"
+                  aria-label="Hubungi Developer"
+                  className="p-1.5 bg-brand-600 text-white rounded-full shadow-md shadow-brand-600/20 hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-500/30 hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center shrink-0 ml-1"
+                >
+                  <Phone className="w-4 h-4 phone-ring-icon" />
+                </button>
               </div>
 
               {/* Tombol Tutup (X) */}
@@ -293,18 +297,32 @@ const Navbar = ({ isMobileOpen = false, setIsMobileOpen = () => {} }) => {
         </div>
 
         {/* Footer Sidebar: Logo Toko / Developer */}
-        <div className="h-16 border-t border-slate-200 dark:border-slate-800 flex items-center justify-center gap-2 flex-shrink-0">
-          <img src="/company_tech.jpg" alt="Logo Company" className="rounded-md w-9 h-9" />
+        <div className={`h-16 border-t border-slate-200 dark:border-slate-800 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between px-3.5'} flex-shrink-0 transition-colors`}>
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            <img src="/company_tech.jpg" alt="Logo Company" className="rounded-md w-9 h-9 shrink-0" />
+
+            {!isCollapsed && (
+              <div className="overflow-hidden">
+                <span className="font-extrabold text-sm tracking-wide text-slate-900 dark:text-slate-100 block leading-tight truncate">
+                  RNZ Developer
+                </span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block truncate">
+                  POS & Inventory System V.1.0
+                </span>
+              </div>
+            )}
+          </div>
 
           {!isCollapsed && (
-            <div className="overflow-hidden">
-              <span className="font-extrabold text-sm tracking-wide text-slate-900 dark:text-slate-100 block leading-tight truncate">
-                RNZ Developer
-              </span>
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block truncate">
-                POS & Inventory System V.1.0
-              </span>
-            </div>
+            <button
+              type="button"
+              onClick={()=>handleWhatsapp()}
+              title="Hubungi Developer"
+              aria-label="Hubungi Developer"
+              className="p-2 bg-brand-600 text-white rounded-full shadow-md shadow-brand-600/20 hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-500/30 hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center shrink-0"
+            >
+              <Phone className="w-4 h-4 phone-ring-icon" />
+            </button>
           )}
         </div>
       </aside>
