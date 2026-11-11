@@ -1,7 +1,21 @@
 const { DataTypes, Model } = require('sequelize');
+const bcrypt = require('bcryptjs');
 const { sequelize } = require('../config/database');
 
-class Member extends Model {}
+class Member extends Model {
+  // Method untuk mencocokkan password candidate dengan password_hash
+  async comparePassword(candidatePassword) {
+    if (!candidatePassword || !this.password_hash) return false;
+    return bcrypt.compare(candidatePassword, this.password_hash);
+  }
+
+  // Mencegah password_hash bocor pada output JSON
+  toJSON() {
+    const values = { ...this.get() };
+    delete values.password_hash;
+    return values;
+  }
+}
 
 Member.init(
   {
@@ -19,6 +33,17 @@ Member.init(
       },
       validate: {
         notEmpty: { msg: 'Kode member tidak boleh kosong' }
+      }
+    },
+    username: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      unique: {
+        name: 'unique_member_username',
+        msg: 'Username sudah digunakan oleh akun lain'
+      },
+      validate: {
+        len: { args: [3, 50], msg: 'Username harus antara 3 - 50 karakter' }
       }
     },
     name: {
@@ -82,6 +107,11 @@ Member.init(
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW
+    },
+    password_hash: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      defaultValue: null
     }
   },
   {
@@ -91,6 +121,20 @@ Member.init(
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
+    hooks: {
+      beforeCreate: async (member) => {
+        if (member.password_hash && !member.password_hash.startsWith('$2a$')) {
+          const salt = await bcrypt.genSalt(10);
+          member.password_hash = await bcrypt.hash(member.password_hash, salt);
+        }
+      },
+      beforeUpdate: async (member) => {
+        if (member.changed('password_hash') && member.password_hash && !member.password_hash.startsWith('$2a$')) {
+          const salt = await bcrypt.genSalt(10);
+          member.password_hash = await bcrypt.hash(member.password_hash, salt);
+        }
+      }
+    },
     indexes: [
       { fields: ['member_code'], unique: true },
       { fields: ['phone'], unique: true },

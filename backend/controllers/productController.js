@@ -62,7 +62,7 @@ async function getAllProducts(req, res, next) {
  */
 async function createProduct(req, res, next) {
   try {
-    const { sku, name, price } = req.body;
+    const { sku, name, price, unit } = req.body;
 
     // LANGKAH 1: Validasi kelengkapan form
     if (!sku || !name || price === undefined) {
@@ -91,11 +91,14 @@ async function createProduct(req, res, next) {
     }
 
     // LANGKAH 3: Simpan produk baru ke database (stok awal selalu 0)
-    // Stok hanya boleh bertambah lewat formulir Stok Masuk resmi
+    // Stok dan keuntungan disetel saat penerimaan barang di Stok Masuk
     const product = await Product.create({
       sku: trimmedSku,
       name: String(name).trim(),
+      unit: unit ? String(unit).trim().toLowerCase() : 'pcs',
       price: parsedPrice,
+      profit: 0,
+      selling_price: parsedPrice,
       stock: 0,
       is_active: true
     });
@@ -119,7 +122,7 @@ async function createProduct(req, res, next) {
 async function updateProduct(req, res, next) {
   try {
     const productId = Number(req.params.id);
-    const { name, price, is_active } = req.body;
+    const { name, price, unit, is_active } = req.body;
 
     // Cari produk berdasarkan ID
     const product = await Product.findByPk(productId);
@@ -133,16 +136,21 @@ async function updateProduct(req, res, next) {
     // Perbarui nama jika ada
     if (name) product.name = String(name).trim();
 
-    // Perbarui harga jika ada dan valid
+    // Perbarui unit jika ada
+    if (unit) product.unit = String(unit).trim().toLowerCase();
+
+    // Perbarui harga modal jika ada dan valid
     if (price !== undefined) {
       const parsedPrice = parseInt(price, 10);
       if (isNaN(parsedPrice) || parsedPrice <= 0) {
         return res.status(400).json({
           success: false,
-          message: 'Harga jual harus berupa bilangan bulat positif.'
+          message: 'Harga modal harus berupa bilangan bulat positif.'
         });
       }
       product.price = parsedPrice;
+      // Perbarui juga harga jual agar modal + keuntungan tetap akurat
+      product.selling_price = parsedPrice + Number(product.profit || 0);
     }
 
     // Perbarui status aktif jika ada

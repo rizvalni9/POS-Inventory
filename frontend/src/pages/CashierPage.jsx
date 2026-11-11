@@ -172,6 +172,8 @@ const CashierPage = () => {
       return;
     }
 
+    const sellingPrice = (product.selling_price && product.selling_price > 0) ? product.selling_price : product.price;
+
     setCart((prevCart) => {
       const existing = prevCart.find((item) => item.product_id === product.id);
       if (existing) {
@@ -191,10 +193,10 @@ const CashierPage = () => {
             product_id: product.id,
             name: product.name,
             sku: product.sku,
-            price: product.price,
+            price: sellingPrice,
             stock: product.stock,
             quantity: 1,
-            subtotal: product.price
+            subtotal: sellingPrice
           }
         ];
       }
@@ -395,7 +397,7 @@ const CashierPage = () => {
 
                       <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
                         <span className="text-xs font-black text-brand-700 dark:text-brand-400">
-                          {formatRupiah(p.price)}
+                          {formatRupiah(p.selling_price || p.price)}
                         </span>
                         <div className="p-1 rounded-lg bg-brand-50 dark:bg-brand-950/60 text-brand-700 dark:text-brand-300 group-hover:bg-brand-600 group-hover:text-white transition-colors">
                           <Plus className="w-3.5 h-3.5" />

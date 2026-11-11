@@ -19,6 +19,7 @@ const ProductsPage = () => {
   const [formData, setFormData] = useState({
     sku: '',
     name: '',
+    unit: 'pcs',
     price: ''
   });
   const [modalLoading, setModalLoading] = useState(false);
@@ -48,7 +49,7 @@ const ProductsPage = () => {
 
   const handleOpenAddModal = () => {
     setEditingProduct(null);
-    setFormData({ sku: '', name: '', price: '' });
+    setFormData({ sku: '', name: '', unit: 'pcs', price: '' });
     setModalError(null);
     setIsModalOpen(true);
   };
@@ -58,6 +59,7 @@ const ProductsPage = () => {
     setFormData({
       sku: product.sku,
       name: product.name,
+      unit: product.unit || 'pcs',
       price: product.price
     });
     setModalError(null);
@@ -71,9 +73,10 @@ const ProductsPage = () => {
 
     try {
       if (editingProduct) {
-        // Edit product (Name & Price only, Stock cannot be manipulated)
+        // Edit product (Name, Unit & Price only, Stock cannot be manipulated)
         await apiClient.put(`/products/${editingProduct.id}`, {
           name: formData.name,
+          unit: formData.unit,
           price: formData.price
         });
       } else {
@@ -81,6 +84,7 @@ const ProductsPage = () => {
         await apiClient.post('/products', {
           sku: formData.sku,
           name: formData.name,
+          unit: formData.unit,
           price: formData.price
         });
       }
@@ -116,7 +120,7 @@ const ProductsPage = () => {
     return matchSearch;
   });
 
-  const formatRupiah = (val) => 'Rp' + Number(val || 0).toLocaleString('id-ID');
+  const formatRupiah = (val) => 'Rp ' + Number(val || 0).toLocaleString('id-ID');
 
   return (
     <div className="space-y-6">
@@ -167,11 +171,13 @@ const ProductsPage = () => {
       {/* Table */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-200">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="min-w-max w-full text-left text-xs">
             <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 uppercase tracking-wider font-semibold">
               <tr>
                 <th className="px-6 py-3.5">SKU / Barcode</th>
                 <th className="px-6 py-3.5">Nama Produk</th>
+                <th className="px-6 py-3.5">Harga Modal</th>
+                <th className="px-6 py-3.5">Keuntungan per Unit</th>
                 <th className="px-6 py-3.5">Harga Jual</th>
                 <th className="px-6 py-3.5 text-center">Stok Saat Ini</th>
                 <th className="px-6 py-3.5 text-center">Status</th>
@@ -193,10 +199,28 @@ const ProductsPage = () => {
                       {product.sku}
                     </td>
                     <td className="px-6 py-4">
-                      <span className="font-semibold text-slate-900 dark:text-slate-100 block">{product.name}</span>
+                      <span className="font-semibold text-slate-900 dark:text-slate-100 block">
+                        {product.name}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 font-medium text-xs text-slate-600 dark:text-slate-400">
+                      {formatRupiah(product.price)}
                     </td>
                     <td className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-100">
-                      {formatRupiah(product.price)}
+                      {Number(product.profit)> 0 ?(
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/50 shadow-xs">
+                          +{formatRupiah(product.profit)}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium text-slate-500 bg-slate-100 dark:bg-slate-800/80 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60">
+                          Rp 0
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-100">
+                      <span className="text-sm font-bold text-brand-600 dark:text-brand-400">
+                        {formatRupiah(product.selling_price || product.price)}
+                      </span>
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span
@@ -208,7 +232,7 @@ const ProductsPage = () => {
                             : 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300'
                         }`}
                       >
-                        {product.stock} Unit
+                        {product.stock} {product.unit || 'unit'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
@@ -307,7 +331,22 @@ const ProductsPage = () => {
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Harga Jual (Rp) <span className="text-red-500">*</span>
+              Satuan Produk (Unit) <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              disabled={modalLoading}
+              value={formData.unit}
+              onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+              placeholder="Contoh: pcs, sak, pouch, pack, kotak, kaleng"
+              className="w-full px-3.5 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Harga Modal (Rp) <span className="text-red-500">*</span>
             </label>
             <input
               type="number"
@@ -326,7 +365,7 @@ const ProductsPage = () => {
             <div className="p-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400">
               <Lock className="w-4 h-4 text-slate-400 shrink-0" />
               <span>
-                Aturan Bisnis: Stok produk saat ini adalah <strong>{editingProduct.stock} unit</strong>. Mutasi stok hanya dapat dilakukan melalui menu <em>Stok Masuk</em> atau <em>Kasir</em>.
+                Aturan Bisnis: Stok produk saat ini adalah <strong>{editingProduct.stock} {editingProduct.unit || 'unit'}</strong>. Mutasi stok hanya dapat dilakukan melalui menu <em>Stok Masuk</em> atau <em>Kasir</em>.
               </span>
             </div>
           ) : (

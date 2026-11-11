@@ -17,7 +17,7 @@ async function createStockIn(req, res, next) {
   const transaction = await sequelize.transaction();
 
   try {
-    const { product_id, quantity, reference_number, notes } = req.body;
+    const { product_id, quantity, profit, reference_number, notes } = req.body;
 
     // LANGKAH 1: Validasi form input
     if (!product_id || quantity === undefined) {
@@ -53,6 +53,14 @@ async function createStockIn(req, res, next) {
 
     // LANGKAH 3: Tambah stok produk di tabel products
     product.stock += parsedQty;
+    //
+    if(profit !== undefined && profit !== null && profit !== ''){
+      const parsedProfit = parseInt(profit, 10);
+      if(parsedProfit >= 0){
+        product.profit = parsedProfit;
+        product.selling_price = product.price + parsedProfit;
+      }
+    }
     await product.save({ transaction });
 
     // LANGKAH 4: Catat riwayat mutasi ke tabel stock_movements

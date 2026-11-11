@@ -1,14 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import apiClient from '../api/axios';
-import {
-  ArrowDownToLine,
-  PlusCircle,
-  History,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
-  Package
-} from 'lucide-react';
+import { ArrowDownToLine, PlusCircle, History, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
 const StockInPage = () => {
   const [products, setProducts] = useState([]);
@@ -21,6 +13,7 @@ const StockInPage = () => {
   // Form State
   const [selectedProductId, setSelectedProductId] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [priceEnd, setPriceEnd] = useState('');
   const [referenceNumber, setReferenceNumber] = useState('');
   const [notes, setNotes] = useState('');
 
@@ -56,12 +49,18 @@ const StockInPage = () => {
       return;
     }
 
+    if (priceEnd === '' || isNaN(Number(priceEnd)) || Number(priceEnd) < 0) {
+      setError('Masukkan keuntungan per unit berupa bilangan bulat non-negatif (minimal 0).');
+      return;
+    }
+
     setSubmitting(true);
 
     try {
       const res = await apiClient.post('/stock-movements', {
         product_id: Number(selectedProductId),
         quantity: parsedQty,
+        profit: Number(priceEnd) || 0,
         reference_number: referenceNumber,
         notes: notes
       });
@@ -71,6 +70,7 @@ const StockInPage = () => {
         // Reset form
         setSelectedProductId('');
         setQuantity('');
+        setPriceEnd('');
         setReferenceNumber('');
         setNotes('');
         fetchData();
@@ -83,6 +83,7 @@ const StockInPage = () => {
   };
 
   const selectedProduct = products.find((p) => p.id === Number(selectedProductId));
+  const priceEnd_converted= Number(priceEnd);
 
   return (
     <div className="space-y-6">
@@ -137,7 +138,7 @@ const StockInPage = () => {
             </div>
 
             {selectedProduct && (
-              <div className="p-3 bg-brand-50/60 dark:bg-brand-950/40 border border-brand-100 dark:border-brand-900/40 rounded-xl flex items-center justify-between text-xs text-brand-900 dark:text-brand-300">
+              <div className="p-3 bg-brand-100/70 dark:bg-brand-900/70 border border-brand-100 dark:border-brand-900/40 rounded-xl flex items-center justify-between text-xs text-brand-900 dark:text-white">
                 <span className="font-medium">Stok fisik saat ini:</span>
                 <span className="font-extrabold text-brand-700 dark:text-brand-300 bg-white dark:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-brand-200 dark:border-brand-700">
                   {selectedProduct.stock} Unit
@@ -160,6 +161,42 @@ const StockInPage = () => {
                 className="w-full px-3.5 py-2 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
+            
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Keuntungan per Unit (Rp)
+              </label>
+              
+              {selectedProduct && (
+                <div className="p-3 bg-brand-100/70 dark:bg-brand-900/70 border border-brand-100 dark:border-brand-900/40 rounded-xl flex items-center justify-between text-xs text-brand-900 dark:text-white mb-4">
+                  <span className="font-medium">Harga Modal:</span>
+                  <span className="font-extrabold text-brand-700 dark:text-brand-300 bg-white dark:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-brand-200 dark:border-brand-700">
+                    {'Rp ' + selectedProduct.price.toLocaleString('id-ID')}
+                  </span>
+                </div>
+              )}
+
+              <input
+                type="number"
+                required
+                min="0"
+                step="1"
+                value={priceEnd}
+                onChange={(e) => setPriceEnd(e.target.value)}
+                placeholder="Contoh: 15000 (Keuntungan per unit barang)"
+                className="w-full px-3.5 py-2 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
+
+            
+            {selectedProduct && (
+              <div className="p-3 bg-rose-50/60 dark:bg-rose-950/40 border border-rose-100 dark:border-brand-900/40 rounded-xl flex items-center justify-between text-xs text-rose-900 dark:text-rose-300">
+                <span className="font-medium">Harga Akhir (Harga Jual):</span>
+                <span className="font-extrabold text-rose-700 dark:text-rose-300 bg-white dark:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-brand-200 dark:border-brand-700">
+                  {'Rp ' + (priceEnd_converted + selectedProduct.price).toLocaleString('id-ID')}
+                </span>
+              </div>
+            )}
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">

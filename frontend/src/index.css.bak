@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Thermal Printer CSS Optimizations */
+@media print {
+  /* Sembunyikan elemen navigasi dan tombol aksi yang tidak perlu dicetak */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Reset halaman agar sesuai dengan kertas printer thermal */
+  @page {
+    margin: 0;
+    size: auto;
+  }
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Reset kontainer pembungkus modal struk saat dicetak */
+  .print-receipt-wrapper {
+    position: static !important;
+    overflow: visible !important;
+    z-index: auto !important;
+    display: block !important;
+    height: auto !important;
+    min-height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+  }
+
+  .print-receipt-dialog {
+    position: static !important;
+    transform: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: #ffffff !important;
+  }
+
+  .print-receipt-container {
+    width: 78mm !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 4mm 2mm !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-family: 'Courier New', Courier, monospace !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    border: none !important;
+  }
+
+  .print-receipt-container * {
+    color: #000000 !important;
+    border-color: #000000 !important;
+  }
+}
+
+/* ============================================================== */
+/* ANIMASI DERING TELEPON MODERN (MODERN PHONE RINGTONE SHAKE)    */
+/* ============================================================== */
+@keyframes modernPhoneRing {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  5% {
+    transform: rotate(-24deg) scale(1.25);
+  }
+  10% {
+    transform: rotate(24deg) scale(1.25);
+  }
+  15% {
+    transform: rotate(-22deg) scale(1.25);
+  }
+  20% {
+    transform: rotate(22deg) scale(1.25);
+  }
+  25% {
+    transform: rotate(-16deg) scale(1.22);
+  }
+  30% {
+    transform: rotate(16deg) scale(1.22);
+  }
+  35% {
+    transform: rotate(-10deg) scale(1.2);
+  }
+  40% {
+    transform: rotate(10deg) scale(1.2);
+  }
+  45% {
+    transform: rotate(-4deg) scale(1.18);
+  }
+  50% {
+    transform: rotate(4deg) scale(1.18);
+  }
+  55% {
+    transform: rotate(0deg) scale(1.18);
+  }
+  100% {
+    transform: rotate(0deg) scale(1.18);
+  }
+}
+
+.phone-ring-icon {
+  display: inline-block;
+  transform-origin: center center;
+  will-change: transform;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.group:hover .phone-ring-icon,
+button:hover .phone-ring-icon {
+  animation: modernPhoneRing 0.9s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite !important;
+}

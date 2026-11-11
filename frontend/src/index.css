@@ -164,3 +164,15 @@
 button:hover .phone-ring-icon {
   animation: modernPhoneRing 0.9s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite !important;
 }
+
+/* ============================================================== */
+/* NATIVE DATE PICKER DARK/LIGHT THEME ADAPTATION                 */
+/* ============================================================== */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.dark input[type="date"] {
+  color-scheme: dark;
+}

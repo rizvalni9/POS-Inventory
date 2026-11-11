@@ -118,15 +118,16 @@ async function checkout(req, res, next) {
         });
       }
 
-      // Hitung subtotal produk
-      const itemSubtotal = product.price * requestedQty;
+      // Hitung subtotal produk berdasarkan Harga Jual (selling_price) ke konsumen
+      const effectiveSellingPrice = (product.selling_price && product.selling_price > 0) ? product.selling_price : product.price;
+      const itemSubtotal = effectiveSellingPrice * requestedQty;
       calculatedTotal += itemSubtotal;
 
       // Siapkan snapshot data untuk tabel sale_items
       saleItemsPayload.push({
         product_id: product.id,
         product_name_at_sale: product.name,
-        price_at_sale: product.price,
+        price_at_sale: effectiveSellingPrice,
         quantity: requestedQty,
         subtotal: itemSubtotal
       });

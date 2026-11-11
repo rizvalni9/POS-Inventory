@@ -30,12 +30,39 @@ Product.init(
         len: { args: [2, 150], msg: 'Nama produk harus antara 2 - 150 karakter' }
       }
     },
+    unit: {
+      type: DataTypes.STRING(20),
+      allowNull: false,
+      defaultValue: 'pcs',
+      validate: {
+        notEmpty: { msg: 'Satuan produk tidak boleh kosong' },
+        len: { args: [1, 20], msg: 'Satuan produk maksimal 20 karakter' }
+      }
+    },
     price: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
       validate: {
         isInt: { msg: 'Harga harus berupa bilangan bulat' },
         min: { args: [1], msg: 'Harga jual harus lebih besar dari 0' }
+      }
+    },
+    profit: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        isInt: { msg: 'Keuntungan per produk harus berupa bilangan bulat' },
+        min: { args: [0], msg: 'Keuntungan per produk tidak boleh negatif' }
+      }
+    },
+    selling_price: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        isInt: { msg: 'Harga jual harus berupa bilangan bulat' },
+        min: { args: [0], msg: 'Harga jual tidak boleh negatif' }
       }
     },
     stock: {

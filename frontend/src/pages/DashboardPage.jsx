@@ -1,18 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import apiClient from '../api/axios';
-import {
-  DollarSign,
-  Receipt,
-  PackageCheck,
-  Calendar,
-  ArrowRight,
-  ShoppingCart,
-  ArrowDownToLine,
-  Package,
-  TrendingUp,
-  Loader2
-} from 'lucide-react';
+import { DollarSign, Receipt, PackageCheck, Calendar, ArrowRight, ShoppingCart, ArrowDownToLine, Package, TrendingUp, Loader2, Wallet, TrendingDown, PiggyBank } from 'lucide-react';
 
 const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
@@ -24,6 +13,9 @@ const DashboardPage = () => {
     total_sales_count: 0,
     total_revenue: 0,
     total_items_sold: 0,
+    gross_profit: 0,
+    operational_expenses: 0,
+    net_profit: 0,
     sales: []
   });
 
@@ -58,13 +50,13 @@ const DashboardPage = () => {
           </p>
         </div>
 
-        <div className="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 self-start sm:self-auto">
-          <Calendar className="w-4 h-4 text-slate-400 ml-2" />
+        <div className="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 self-start sm:self-auto transition-colors">
+          <Calendar className="w-4 h-4 text-slate-400 dark:text-slate-300 ml-2" />
           <input
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="text-xs font-semibold bg-transparent text-slate-700 dark:text-slate-200 focus:outline-none pr-2"
+            className="text-xs font-semibold bg-transparent text-slate-700 dark:text-slate-200 focus:outline-none pr-2 cursor-pointer [color-scheme:light] dark:[color-scheme:dark]"
           />
         </div>
       </div>
@@ -72,10 +64,10 @@ const DashboardPage = () => {
       {/* Metric Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* Total Omset */}
-        <div className="bg-gradient-to-br from-brand-600 to-brand-700 text-white p-6 rounded-3xl shadow-lg shadow-brand-500/20 relative overflow-hidden">
+        <div className="bg-gradient-to-br from-emerald-500 to-emerald-800 text-white p-6 rounded-3xl shadow-lg shadow-emerald-500/20 relative overflow-hidden">
           <div className="relative z-10">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-brand-100">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-100">
                 Penerimaan Kas (Omset)
               </span>
               <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
@@ -85,7 +77,7 @@ const DashboardPage = () => {
             <div className="text-2xl sm:text-3xl font-black mt-3">
               {loading ? <Loader2 className="w-7 h-7 animate-spin" /> : formatRupiah(summary.total_revenue)}
             </div>
-            <p className="text-[11px] text-brand-200 mt-2 flex items-center space-x-1">
+            <p className="text-[11px] text-emerald-100 mt-2 flex items-center space-x-1">
               <TrendingUp className="w-3.5 h-3.5" />
               <span>Pendapatan kas bersih tervalidasi</span>
             </p>
@@ -93,19 +85,19 @@ const DashboardPage = () => {
         </div>
 
         {/* Total Transaksi */}
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm relative transition-colors duration-200">
+        <div className="bg-gradient-to-br from-blue-500 to-blue-800 text-white p-6 rounded-3xl shadow-lg shadow-emerald-500/20 relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-100">
               Transaksi Selesai
             </span>
-            <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-              <Receipt className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+              <Receipt className="w-5 h-5 text-white" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 mt-3">
-            {loading ? <Loader2 className="w-7 h-7 animate-spin text-slate-400" /> : `${summary.total_sales_count} Nota`}
+          <div className="text-2xl sm:text-3xl font-black mt-3">
+            {loading ? <Loader2 className="w-7 h-7 animate-spin" /> : `${summary.total_sales_count} Nota`}
           </div>
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-2">
+          <p className="text-[11px] text-emerald-100 mt-2 flex items-center space-x-1">
             Faktur belanja berhasil diproses
           </p>
         </div>
@@ -120,17 +112,102 @@ const DashboardPage = () => {
               <PackageCheck className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 mt-3">
-            {loading ? <Loader2 className="w-7 h-7 animate-spin text-slate-400" /> : `${summary.total_items_sold} Unit`}
+          <div className="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400 mt-3">
+            {loading ? <Loader2 className="w-7 h-7 animate-spin text-amber-400" /> : `${summary.total_items_sold} Unit`}
           </div>
           <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-2">
             Total kuantitas barang keluar etalase
           </p>
         </div>
       </div>
+      
+      {/* Profit Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+        {/* 1. Laba Kotor */}
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Laba Kotor
+            </span>
+
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 flex items-center justify-center">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+          </div>
+
+          <div className="text-2xl font-black text-emerald-600 mt-3">
+            {loading ? (
+              <Loader2 className="w-7 h-7 animate-spin" />
+            ) : (
+              formatRupiah(summary.gross_profit)
+            )}
+          </div>
+
+          <p className="text-[11px] text-slate-400 mt-2">
+            Omset dikurangi modal barang terjual
+          </p>
+        </div>
+
+        {/* 2. Biaya Operasional */}
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Biaya Operasional
+            </span>
+
+            <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 flex items-center justify-center">
+              <TrendingDown className="w-5 h-5" />
+            </div>
+          </div>
+
+          <div className="text-2xl font-black text-rose-600 mt-3">
+            {loading ? (
+              <Loader2 className="w-7 h-7 animate-spin" />
+            ) : (
+              formatRupiah(summary.operational_expenses)
+            )}
+          </div>
+
+          <p className="text-[11px] text-slate-400 mt-2">
+            Total pengeluaran operasional toko
+          </p>
+        </div>
+
+        {/* 3. Laba Bersih */}
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Laba Bersih
+            </span>
+
+            <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 flex items-center justify-center">
+              <PiggyBank className="w-5 h-5" />
+            </div>
+          </div>
+
+          <div className={`text-2xl font-black mt-3 ${
+            Number(summary.net_profit) > 0
+              ? 'text-blue-600 dark:text-blue-400'
+              : Number(summary.net_profit) === 0
+              ? 'text-slate-700 dark:text-slate-300'
+              : 'text-rose-600 dark:text-rose-400'
+          }`}>
+            {loading ? (
+              <Loader2 className="w-7 h-7 animate-spin" />
+            ) : (
+              formatRupiah(summary.net_profit)
+            )}
+          </div>
+
+          <p className="text-[11px] text-slate-400 mt-2">
+            Laba kotor dikurangi biaya operasional
+          </p>
+        </div>
+      </div>
 
       {/* Quick Access Action Shortcuts */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <NavLink
           to="/pos"
           className="group flex items-center justify-between p-4 bg-white dark:bg-slate-900 hover:bg-brand-50 dark:hover:bg-brand-950/30 border border-slate-200 dark:border-slate-800 hover:border-brand-300 dark:hover:border-brand-700 rounded-2xl shadow-sm transition-all"
@@ -178,7 +255,7 @@ const DashboardPage = () => {
           </div>
           <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />
         </NavLink>
-      </div>
+      </div> */}
 
       {/* Sales Transactions on Selected Date */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-200">
