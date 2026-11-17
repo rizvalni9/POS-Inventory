@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import apiClient from '../api/axios';
-import { Store, CheckCircle2, AlertCircle, Loader2, Save } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Loader2, Save } from 'lucide-react';
+import { TbMoneybagMove } from "react-icons/tb";
+import OperationalExpenseModal from '../components/OperationalExpenseModal';
 
 const StoreProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
+  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     store_name: '',
@@ -89,7 +92,7 @@ const StoreProfilePage = () => {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                   Nama Toko
                 </label>
                 <input
@@ -141,10 +144,8 @@ const StoreProfilePage = () => {
                 />
               </div>
 
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
+              <div className="flex justify-between pt-2">
+                <button type="submit" disabled={submitting}
                   className="inline-flex items-center space-x-2 px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-md shadow-brand-500/20 transition-all active:scale-95 disabled:opacity-50"
                 >
                   {submitting ? (
@@ -158,6 +159,15 @@ const StoreProfilePage = () => {
                       <span>Simpan Perubahan Profil</span>
                     </>
                   )}
+                </button>
+
+                <button 
+                  type='button' 
+                  onClick={() => setIsExpenseModalOpen(true)}
+                  className="inline-flex items-center space-x-2 px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-md shadow-rose-500/20 transition-all active:scale-95"
+                >
+                  <TbMoneybagMove className='w-4 h-4' />
+                  <span>Form Biaya Operasional</span>  
                 </button>
               </div>
             </form>
@@ -194,6 +204,12 @@ const StoreProfilePage = () => {
           </p>
         </div>
       </div>
+
+      {/* Modal Form Biaya Operasional Toko */}
+      <OperationalExpenseModal 
+        isOpen={isExpenseModalOpen}
+        onClose={() => setIsExpenseModalOpen(false)}
+      />
     </div>
   );
 };

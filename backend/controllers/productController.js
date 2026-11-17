@@ -95,7 +95,8 @@ async function createProduct(req, res, next) {
     const product = await Product.create({
       sku: trimmedSku,
       name: String(name).trim(),
-      unit: unit ? String(unit).trim().toLowerCase() : 'pcs',
+      category: req.body.category && String(req.body.category).trim() !== '' ? String(req.body.category).trim() : null,
+      unit: unit ? String(unit).trim() : 'Pcs',
       price: parsedPrice,
       profit: 0,
       selling_price: parsedPrice,
@@ -137,7 +138,12 @@ async function updateProduct(req, res, next) {
     if (name) product.name = String(name).trim();
 
     // Perbarui unit jika ada
-    if (unit) product.unit = String(unit).trim().toLowerCase();
+    if (unit) product.unit = String(unit).trim();
+
+    // Perbarui kategori jika ada
+    if (req.body.category !== undefined) {
+      product.category = req.body.category ? String(req.body.category).trim() : null;
+    }
 
     // Perbarui harga modal jika ada dan valid
     if (price !== undefined) {

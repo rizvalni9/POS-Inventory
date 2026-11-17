@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Sale, SaleItem, User, Product } = require('../models');
+const { Sale, SaleItem, User, Product, OperationalExpense } = require('../models');
 
 /**
  * Controller: Get daily financial and sales summary (Owner only)
@@ -67,8 +67,13 @@ async function getDailySummary(req, res, next) {
     // 1. Laba Kotor: Omset penerimaan dikurangi total modal barang terjual
     const grossProfit = Math.max(0, totalRevenue - totalCostOfGoodsSold);
 
-    // 2. Biaya Operasional: Total pengeluaran operasional toko (default 0)
-    const operationalExpenses = 0;
+    // 2. Biaya Operasional: Total pengeluaran operasional toko pada tanggal tersebut
+    const totalExpenses = await OperationalExpense.sum('amount', {
+      where: {
+        expense_date: targetDateStr
+      }
+    }) || 0;
+    const operationalExpenses = Number(totalExpenses);
 
     // 3. Laba Bersih: Laba kotor dikurangi biaya operasional
     const netProfit = grossProfit - operationalExpenses;

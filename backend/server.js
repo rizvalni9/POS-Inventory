@@ -33,6 +33,7 @@ const salesRoutes = require('./routes/salesRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const memberRoutes = require('./routes/memberRoutes');
 const customerRoutes = require('./routes/customerRoutes');
+const expenseRoutes = require('./routes/expenseRoutes');
 
 // Inisialisasi aplikasi Express
 const app = express();
@@ -113,6 +114,7 @@ app.use('/api/sales', salesRoutes);                 // Checkout kasir & histori 
 app.use('/api/reports', reportRoutes);             // Laporan ringkasan omset harian
 app.use('/api/members', memberRoutes);             // Modul loyalty member pelanggan & poin (Owner & Cashier)
 app.use('/api/v1/customer', customerRoutes);        // Rute khusus mobile customer toko (M01)
+app.use('/api/operational-expenses', expenseRoutes);// Penentuan & pencatatan biaya operasional toko (Owner only)
 
 // ------------------------------------------------------------------------------
 // 6. PENANGANAN ERROR (Error Handlers)

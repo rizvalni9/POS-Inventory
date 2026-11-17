@@ -12,6 +12,7 @@ const ProductsPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [activeQuickSatuan, setActiveQuickSatuan] = useState('Pcs');
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,11 +20,12 @@ const ProductsPage = () => {
   const [formData, setFormData] = useState({
     sku: '',
     name: '',
-    unit: 'pcs',
+    unit: 'Pcs',
     price: ''
   });
   const [modalLoading, setModalLoading] = useState(false);
   const [modalError, setModalError] = useState(null);
+  const PRESET_UNITS = ['Pcs', 'Pack', 'Liter', 'g', 'kg'];
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -49,17 +51,27 @@ const ProductsPage = () => {
 
   const handleOpenAddModal = () => {
     setEditingProduct(null);
-    setFormData({ sku: '', name: '', unit: 'pcs', price: '' });
+    setActiveQuickSatuan('CUSTOM');
+    setFormData({ sku: '', name: '', unit: '', price: '' });
     setModalError(null);
     setIsModalOpen(true);
   };
 
   const handleOpenEditModal = (product) => {
     setEditingProduct(product);
+    const currentUnit = (product.unit || 'Pcs');
+    
+    // Jika satuan produk ada di opsi dropdown, pilih itu. Jika tidak, set ke 'custom'
+    if (PRESET_UNITS.includes(currentUnit)) {
+      setActiveQuickSatuan(currentUnit);
+    } else {
+      setActiveQuickSatuan('CUSTOM');
+    }
+
     setFormData({
       sku: product.sku,
       name: product.name,
-      unit: product.unit || 'pcs',
+      unit: product.unit || 'Pcs',
       price: product.price
     });
     setModalError(null);
@@ -120,6 +132,17 @@ const ProductsPage = () => {
     return matchSearch;
   });
 
+  function handleQuickSatuan(e){
+    const selectedSatuan = e.target.value;
+    setActiveQuickSatuan(selectedSatuan);
+
+    if(selectedSatuan === 'CUSTOM'){
+      setFormData((prev) => ({ ...prev, unit: '' }));
+    }else{
+      setFormData((prev) => ({ ...prev, unit: selectedSatuan }));
+    }
+  }
+
   const formatRupiah = (val) => 'Rp ' + Number(val || 0).toLocaleString('id-ID');
 
   return (
@@ -179,9 +202,9 @@ const ProductsPage = () => {
                 <th className="px-6 py-3.5">Harga Modal</th>
                 <th className="px-6 py-3.5">Keuntungan per Unit</th>
                 <th className="px-6 py-3.5">Harga Jual</th>
-                <th className="px-6 py-3.5 text-center">Stok Saat Ini</th>
-                <th className="px-6 py-3.5 text-center">Status</th>
-                {isOwner && <th className="px-6 py-3.5 text-right">Aksi</th>}
+                <th className="px-6 py-3.5">Stok Saat Ini</th>
+                <th className="px-6 py-3.5">Status</th>
+                {isOwner && <th className="bg-brand-600 text-slate-100 rounded-tl-3xl px-6 py-3.5 text-center">Aksi</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
@@ -193,20 +216,18 @@ const ProductsPage = () => {
                   </td>
                 </tr>
               ) : filteredProducts.length > 0 ? (
-                filteredProducts.map((product) => (
+                filteredProducts.map((product, index) => (
                   <tr key={product.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
-                    <td className="px-6 py-4 font-mono font-bold text-slate-800 dark:text-slate-200">
+                    <td className="px-6 py-4 font-mono font-bold text-center text-slate-800 dark:text-slate-200">
                       {product.sku}
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="font-semibold text-slate-900 dark:text-slate-100 block">
-                        {product.name}
-                      </span>
+                    <td className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-100 block">
+                      {product.name}
                     </td>
                     <td className="px-6 py-4 font-medium text-xs text-slate-600 dark:text-slate-400">
                       {formatRupiah(product.price)}
                     </td>
-                    <td className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-100">
+                    <td className="flex justify-center px-6 py-4 font-semibold text-slate-900 dark:text-slate-100">
                       {Number(product.profit)> 0 ?(
                         <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/50 shadow-xs">
                           +{formatRupiah(product.profit)}
@@ -217,10 +238,8 @@ const ProductsPage = () => {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-100">
-                      <span className="text-sm font-bold text-brand-600 dark:text-brand-400">
-                        {formatRupiah(product.selling_price || product.price)}
-                      </span>
+                    <td className="text-right px-6 py-4 text-sm font-bold text-brand-600 dark:text-green-500">
+                      {formatRupiah(product.selling_price || product.price)}
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span
@@ -249,11 +268,12 @@ const ProductsPage = () => {
                       )}
                     </td>
                     {isOwner && (
-                      <td className="px-6 py-4 text-right space-x-2">
+                      <td className={`px-6 py-4 bg-brand-600 space-x-2 ${index===filteredProducts.length-1 ? 'rounded-bl-3xl' : ''}`}>
                         <button
                           onClick={() => handleOpenEditModal(product)}
                           title="Edit Produk"
-                          className="p-1.5 text-slate-500 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                          // className="p-1.5 text-slate-500 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                          className="p-1.5 text-white/80 hover:text-white hover:bg-brand-700 rounded-lg transition-colors"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
@@ -262,8 +282,8 @@ const ProductsPage = () => {
                           title={product.is_active ? 'Nonaktifkan Produk' : 'Aktifkan Produk'}
                           className={`p-1.5 rounded-lg transition-colors ${
                             product.is_active
-                              ? 'text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40'
-                              : 'text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40'
+                              ? 'text-rose-600 hover:text-rose-800 hover:bg-rose-100'
+                              : 'text-white/85 hover:text-brand-600 hover:bg-brand-100'
                           }`}
                         >
                           {product.is_active ? <XCircle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
@@ -333,15 +353,29 @@ const ProductsPage = () => {
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Satuan Produk (Unit) <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              required
-              disabled={modalLoading}
-              value={formData.unit}
-              onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-              placeholder="Contoh: pcs, sak, pouch, pack, kotak, kaleng"
-              className="w-full px-3.5 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 placeholder:text-slate-400 dark:placeholder:text-slate-500"
-            />
+            <div className="flex justify-between gap-2">
+              <input
+                type="text"
+                required
+                disabled={modalLoading || activeQuickSatuan !== 'CUSTOM'}
+                value={formData.unit}
+                onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                placeholder={activeQuickSatuan === 'CUSTOM' ? "Contoh: 'Pcs' Atau 'BOX'" : null}
+                className="w-[65%] px-3.5 py-2 text-sm text-center bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+              />
+              <select
+                value={activeQuickSatuan}
+                onChange={handleQuickSatuan}
+                className="w-[80%] px-3.5 py-2 text-sm text-center bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors"
+              >
+                <option value="CUSTOM">--- Pilih Cepat Preset Satuan ---</option>
+                <option value="Pcs">Pieces</option>
+                <option value="Pack">Pak</option>
+                <option value="L">Liter</option>
+                <option value="g">Gram</option>
+                <option value="kg">Kilogram</option>
+              </select>
+            </div>
           </div>
 
           <div>

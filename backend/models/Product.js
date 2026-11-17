@@ -30,6 +30,11 @@ Product.init(
         len: { args: [2, 150], msg: 'Nama produk harus antara 2 - 150 karakter' }
       }
     },
+    category: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      defaultValue: null
+    },
     unit: {
       type: DataTypes.STRING(20),
       allowNull: false,

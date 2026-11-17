@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import apiClient from '../api/axios';
-import { DollarSign, Receipt, PackageCheck, Calendar, ArrowRight, ShoppingCart, ArrowDownToLine, Package, TrendingUp, Loader2, Wallet, TrendingDown, PiggyBank } from 'lucide-react';
+import { DollarSign, Receipt, PackageCheck, Calendar, ArrowRight, ShoppingCart, ArrowDownToLine, Package, TrendingUp, Loader2, Wallet, TrendingDown } from 'lucide-react';
+import { IoWallet } from "react-icons/io5";
 
 const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
@@ -64,10 +65,10 @@ const DashboardPage = () => {
       {/* Metric Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* Total Omset */}
-        <div className="bg-gradient-to-br from-emerald-500 to-emerald-800 text-white p-6 rounded-3xl shadow-lg shadow-emerald-500/20 relative overflow-hidden">
+        <div className="bg-gradient-to-br from-indigo-400 to-indigo-600 text-white p-6 rounded-3xl dark:border dark:border-indigo-300 dark:shadow-lg dark:shadow-indigo-500 duration-300">
           <div className="relative z-10">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-100">
+              <span className="text-xs font-bold uppercase tracking-wider text-indigo-100">
                 Penerimaan Kas (Omset)
               </span>
               <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
@@ -75,19 +76,19 @@ const DashboardPage = () => {
               </div>
             </div>
             <div className="text-2xl sm:text-3xl font-black mt-3">
-              {loading ? <Loader2 className="w-7 h-7 animate-spin" /> : formatRupiah(summary.total_revenue)}
+              {loading ? <Loader2 className="w-7 h-7" /> : formatRupiah(summary.total_revenue)}
             </div>
-            <p className="text-[11px] text-emerald-100 mt-2 flex items-center space-x-1">
-              <TrendingUp className="w-3.5 h-3.5" />
+            <p className="text-[11px] text-indigo-100 mt-2 flex items-center space-x-1">
+              <TrendingUp className="w-3.5 h-3.5 text-green-400" />
               <span>Pendapatan kas bersih tervalidasi</span>
             </p>
           </div>
         </div>
 
         {/* Total Transaksi */}
-        <div className="bg-gradient-to-br from-blue-500 to-blue-800 text-white p-6 rounded-3xl shadow-lg shadow-emerald-500/20 relative overflow-hidden">
+        <div className="bg-gradient-to-br from-blue-500 to-blue-800 text-white p-6 rounded-3xl dark:border dark:border-blue-300 dark:shadow-lg dark:shadow-blue-500 duration-300">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-100">
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-100">
               Transaksi Selesai
             </span>
             <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
@@ -95,27 +96,27 @@ const DashboardPage = () => {
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black mt-3">
-            {loading ? <Loader2 className="w-7 h-7 animate-spin" /> : `${summary.total_sales_count} Nota`}
+            {loading ? <Loader2 className="w-7 h-7" /> : `${summary.total_sales_count} Nota`}
           </div>
-          <p className="text-[11px] text-emerald-100 mt-2 flex items-center space-x-1">
+          <p className="text-[11px] text-blue-100 mt-2 flex items-center space-x-1">
             Faktur belanja berhasil diproses
           </p>
         </div>
 
         {/* Total Item Terjual */}
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm relative transition-colors duration-200">
+        <div className="bg-gradient-to-br from-amber-400 to-amber-600 text-white p-6 rounded-3xl dark:border dark:border-amber-300 dark:shadow-lg dark:shadow-amber-500 duration-300">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-white">
               Barang Terjual
             </span>
-            <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-white/30 flex items-center justify-center">
               <PackageCheck className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400 mt-3">
-            {loading ? <Loader2 className="w-7 h-7 animate-spin text-amber-400" /> : `${summary.total_items_sold} Unit`}
+          <div className="text-2xl sm:text-3xl font-black mt-3">
+            {loading ? <Loader2 className="w-7 h-7" /> : `${summary.total_items_sold} Unit`}
           </div>
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-2">
+          <p className="text-[11px] text-amber-100 mt-2">
             Total kuantitas barang keluar etalase
           </p>
         </div>
@@ -125,82 +126,76 @@ const DashboardPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
         {/* 1. Laba Kotor */}
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="bg-gradient-to-br from-orange-400 to-orange-600 text-white p-6 rounded-3xl dark:border dark:border-orange-300 dark:shadow-lg dark:shadow-orange-500 duration-300">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-orange-100">
               Laba Kotor
             </span>
 
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.9)] bg-white/70 text-green-600 flex items-center justify-center">
               <TrendingUp className="w-5 h-5" />
             </div>
           </div>
 
-          <div className="text-2xl font-black text-emerald-600 mt-3">
+          <div className="text-2xl sm:text-3xl font-black mt-3">
             {loading ? (
-              <Loader2 className="w-7 h-7 animate-spin" />
+              <Loader2 className="w-7 h-7" />
             ) : (
               formatRupiah(summary.gross_profit)
             )}
           </div>
 
-          <p className="text-[11px] text-slate-400 mt-2">
+          <p className="text-[11px] text-orange-100 mt-2">
             Omset dikurangi modal barang terjual
           </p>
         </div>
 
         {/* 2. Biaya Operasional */}
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="bg-gradient-to-br from-rose-400 to-rose-600 text-white p-6 rounded-3xl dark:border dark:border-rose-300 dark:shadow-lg dark:shadow-rose-500 duration-300">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-rose-100">
               Biaya Operasional
             </span>
 
-            <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.9)] bg-white/70 text-red-600 flex items-center justify-center">
               <TrendingDown className="w-5 h-5" />
             </div>
           </div>
 
-          <div className="text-2xl font-black text-rose-600 mt-3">
+          <div className="text-2xl sm:text-3xl font-black mt-3">
             {loading ? (
-              <Loader2 className="w-7 h-7 animate-spin" />
+              <Loader2 className="w-7 h-7" />
             ) : (
               formatRupiah(summary.operational_expenses)
             )}
           </div>
 
-          <p className="text-[11px] text-slate-400 mt-2">
+          <p className="text-[11px] text-rose-100 mt-2">
             Total pengeluaran operasional toko
           </p>
         </div>
 
         {/* 3. Laba Bersih */}
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="bg-gradient-to-br from-emerald-500 to-emerald-800 text-white p-6 rounded-3xl dark:border dark:border-emerald-300 dark:shadow-lg dark:shadow-emerald-500 duration-300">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-100">
               Laba Bersih
             </span>
 
-            <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 flex items-center justify-center">
-              <PiggyBank className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.9)] bg-white/70 flex items-center justify-center">
+              <IoWallet className="w-5 h-5 text-blue-600" />
             </div>
           </div>
 
-          <div className={`text-2xl font-black mt-3 ${
-            Number(summary.net_profit) > 0
-              ? 'text-blue-600 dark:text-blue-400'
-              : Number(summary.net_profit) === 0
-              ? 'text-slate-700 dark:text-slate-300'
-              : 'text-rose-600 dark:text-rose-400'
-          }`}>
+          <div className="text-2xl sm:text-3xl font-black mt-3 ">
             {loading ? (
-              <Loader2 className="w-7 h-7 animate-spin" />
+              <Loader2 className="w-7 h-7" />
             ) : (
               formatRupiah(summary.net_profit)
             )}
           </div>
 
-          <p className="text-[11px] text-slate-400 mt-2">
+          <p className="text-[11px] text-emerald-100 mt-2">
             Laba kotor dikurangi biaya operasional
           </p>
         </div>

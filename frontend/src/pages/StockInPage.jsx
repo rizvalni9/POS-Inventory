@@ -12,6 +12,7 @@ const StockInPage = () => {
 
   // Form State
   const [selectedProductId, setSelectedProductId] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [quantity, setQuantity] = useState('');
   const [priceEnd, setPriceEnd] = useState('');
   const [referenceNumber, setReferenceNumber] = useState('');
@@ -61,6 +62,7 @@ const StockInPage = () => {
         product_id: Number(selectedProductId),
         quantity: parsedQty,
         profit: Number(priceEnd) || 0,
+        category: selectedCategory || null,
         reference_number: referenceNumber,
         notes: notes
       });
@@ -69,6 +71,7 @@ const StockInPage = () => {
         setMessage(res.data.message);
         // Reset form
         setSelectedProductId('');
+        setSelectedCategory('');
         setQuantity('');
         setPriceEnd('');
         setReferenceNumber('');
@@ -125,7 +128,12 @@ const StockInPage = () => {
               <select
                 required
                 value={selectedProductId}
-                onChange={(e) => setSelectedProductId(e.target.value)}
+                onChange={(e) => {
+                  const pid = e.target.value;
+                  setSelectedProductId(pid);
+                  const prod = products.find((p) => p.id === Number(pid));
+                  setSelectedCategory(prod?.category || '');
+                }}
                 className="w-full px-3.5 py-2 text-xs font-medium border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
               >
                 <option value="">-- Pilih Barang Dagangan --</option>
@@ -138,12 +146,39 @@ const StockInPage = () => {
             </div>
 
             {selectedProduct && (
-              <div className="p-3 bg-brand-100/70 dark:bg-brand-900/70 border border-brand-100 dark:border-brand-900/40 rounded-xl flex items-center justify-between text-xs text-brand-900 dark:text-white">
-                <span className="font-medium">Stok fisik saat ini:</span>
-                <span className="font-extrabold text-brand-700 dark:text-brand-300 bg-white dark:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-brand-200 dark:border-brand-700">
-                  {selectedProduct.stock} Unit
-                </span>
-              </div>
+              <>
+                <div className="p-3 bg-brand-100/70 dark:bg-brand-900/70 border border-green-300 dark:border-green-500/30 rounded-xl flex items-center justify-between text-xs text-brand-900 dark:text-white">
+                  <span className="font-medium">Stok fisik saat ini:</span>
+                  <span className="font-extrabold text-brand-700 dark:text-green-200 bg-white dark:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-brand-200 dark:border-brand-700">
+                    {selectedProduct.stock} Unit
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Kategori Produk {selectedProduct.category && <span className="text-brand-600 dark:text-brand-400 font-normal">(Saat ini: {selectedProduct.category})</span>}
+                  </label>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="w-full px-3.5 py-2 text-xs font-medium border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                  >
+                    <option value="">-- Pilih Kategori Produk --</option>
+                    <option value="Sembako">Sembako</option>
+                    <option value="Bahan Kue">Bahan Kue</option>
+                    <option value="Minuman">Minuman</option>
+                    <option value="Makanan Instan">Makanan Instan</option>
+                    <option value="Roti">Roti</option>
+                    <option value="Biskuit & Wafer">Biskuit & Wafer</option>
+                    <option value="Sayuran">Sayuran</option>
+                    <option value="Buahan">Buahan</option>
+                    <option value="Frozen Food">Frozen Food</option>
+                    <option value="Snack">Snack</option>
+                    <option value="Personal Care">Personal Care</option>
+                    <option value="Lainnya">Lainnya...</option>
+                  </select>
+                </div>
+              </>
             )}
 
             <div>
@@ -168,9 +203,9 @@ const StockInPage = () => {
               </label>
               
               {selectedProduct && (
-                <div className="p-3 bg-brand-100/70 dark:bg-brand-900/70 border border-brand-100 dark:border-brand-900/40 rounded-xl flex items-center justify-between text-xs text-brand-900 dark:text-white mb-4">
+                <div className="p-3 bg-brand-100/70 dark:bg-brand-900/70 border border-green-300 dark:border-green-500/30 rounded-xl flex items-center justify-between text-xs text-brand-900 dark:text-white mb-4">
                   <span className="font-medium">Harga Modal:</span>
-                  <span className="font-extrabold text-brand-700 dark:text-brand-300 bg-white dark:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-brand-200 dark:border-brand-700">
+                  <span className="font-extrabold text-brand-700 dark:text-green-200 bg-white dark:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-brand-200 dark:border-brand-700">
                     {'Rp ' + selectedProduct.price.toLocaleString('id-ID')}
                   </span>
                 </div>
@@ -190,7 +225,7 @@ const StockInPage = () => {
 
             
             {selectedProduct && (
-              <div className="p-3 bg-rose-50/60 dark:bg-rose-950/40 border border-rose-100 dark:border-brand-900/40 rounded-xl flex items-center justify-between text-xs text-rose-900 dark:text-rose-300">
+              <div className="p-3 bg-rose-50/60 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-500/30 rounded-xl flex items-center justify-between text-xs text-rose-900 dark:text-rose-300">
                 <span className="font-medium">Harga Akhir (Harga Jual):</span>
                 <span className="font-extrabold text-rose-700 dark:text-rose-300 bg-white dark:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-brand-200 dark:border-brand-700">
                   {'Rp ' + (priceEnd_converted + selectedProduct.price).toLocaleString('id-ID')}
@@ -287,7 +322,14 @@ const StockInPage = () => {
                       </td>
                       <td className="px-5 py-3.5 font-semibold text-slate-900 dark:text-slate-100">
                         {mov.product?.name || 'Produk'}
-                        <span className="block text-[10px] font-mono text-slate-400 dark:text-slate-500">{mov.product?.sku}</span>
+                        <div className="flex items-center space-x-1.5 mt-0.5">
+                          <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">{mov.product?.sku}</span>
+                          {mov.product?.category && (
+                            <span className="text-[10px] bg-brand-50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 px-1.5 py-0.5 rounded font-medium border border-brand-200 dark:border-brand-800">
+                              {mov.product.category}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-5 py-3.5 text-center">
                         <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-extrabold bg-green-100 text-green-800 dark:bg-green-950/60 dark:text-green-300">

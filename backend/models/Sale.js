@@ -34,6 +34,14 @@ Sale.init(
         key: 'id'
       }
     },
+    order_request_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'order_requests',
+        key: 'id'
+      }
+    },
     subtotal_amount: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,

@@ -24,19 +24,15 @@ import {
   Plus,
   Minus,
   Trash2,
-  CheckCircle2,
   AlertCircle,
   Loader2,
-  DollarSign,
   ArrowRight,
   Package,
   Award,
-  UserCheck,
   UserPlus,
   Coins,
   Sparkles,
-  X,
-  Phone
+  X
 } from 'lucide-react';
 
 const CashierPage = () => {
@@ -316,7 +312,7 @@ const CashierPage = () => {
     }
   };
 
-  const formatRupiah = (val) => 'Rp' + Number(val || 0).toLocaleString('id-ID');
+  const formatRupiah = (val) => 'Rp ' + Number(val || 0).toLocaleString('id-ID');
 
   const filteredProducts = products.filter(
     (p) =>
@@ -396,7 +392,7 @@ const CashierPage = () => {
                       </div>
 
                       <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
-                        <span className="text-xs font-black text-brand-700 dark:text-brand-400">
+                        <span className="text-xs font-black text-brand-700 dark:text-green-500">
                           {formatRupiah(p.selling_price || p.price)}
                         </span>
                         <div className="p-1 rounded-lg bg-brand-50 dark:bg-brand-950/60 text-brand-700 dark:text-brand-300 group-hover:bg-brand-600 group-hover:text-white transition-colors">
@@ -650,7 +646,7 @@ const CashierPage = () => {
                 <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Total Tagihan:
                 </span>
-                <span className="text-xl font-black text-brand-700 dark:text-brand-400">
+                <span className="text-xl font-black text-brand-700 dark:text-green-500">
                   {formatRupiah(netTotal)}
                 </span>
               </div>

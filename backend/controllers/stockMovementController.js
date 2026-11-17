@@ -17,7 +17,7 @@ async function createStockIn(req, res, next) {
   const transaction = await sequelize.transaction();
 
   try {
-    const { product_id, quantity, profit, reference_number, notes } = req.body;
+    const { product_id, quantity, profit, category, reference_number, notes } = req.body;
 
     // LANGKAH 1: Validasi form input
     if (!product_id || quantity === undefined) {
@@ -51,12 +51,19 @@ async function createStockIn(req, res, next) {
       });
     }
 
-    // LANGKAH 3: Tambah stok produk di tabel products
+    // LANGKAH 3: Tambah stok produk di tabel products dan update kategori jika dipilih
     product.stock += parsedQty;
-    //
-    if(profit !== undefined && profit !== null && profit !== ''){
+
+    if (category !== undefined && category !== null) {
+      const trimmedCategory = String(category).trim();
+      if (trimmedCategory !== '' && trimmedCategory !== 'CUSTOM') {
+        product.category = trimmedCategory;
+      }
+    }
+
+    if (profit !== undefined && profit !== null && profit !== '') {
       const parsedProfit = parseInt(profit, 10);
-      if(parsedProfit >= 0){
+      if (parsedProfit >= 0) {
         product.profit = parsedProfit;
         product.selling_price = product.price + parsedProfit;
       }
@@ -117,7 +124,7 @@ async function getStockMovements(req, res, next) {
         {
           model: Product,
           as: 'product',
-          attributes: ['id', 'sku', 'name', 'stock']
+          attributes: ['id', 'sku', 'name', 'category', 'stock']
         },
         {
           model: User,

@@ -8,6 +8,9 @@ const Sale = require('./Sale');
 const SaleItem = require('./SaleItem');
 const Member = require('./Member');
 const MemberPointHistory = require('./MemberPointHistory');
+const OrderRequest = require('./OrderRequest');
+const OrderRequestItem = require('./OrderRequestItem');
+const OperationalExpense = require('./OperationalExpense');
 
 // Setup Associations
 // 1. User <-> UserSession
@@ -50,6 +53,26 @@ MemberPointHistory.belongsTo(Sale, { foreignKey: 'sale_id', as: 'sale' });
 User.hasMany(MemberPointHistory, { foreignKey: 'created_by_user_id', as: 'point_adjustments' });
 MemberPointHistory.belongsTo(User, { foreignKey: 'created_by_user_id', as: 'creator' });
 
+// 11. Member <-> OrderRequest
+Member.hasMany(OrderRequest, { foreignKey: 'member_id', as: 'order_requests' });
+OrderRequest.belongsTo(Member, { foreignKey: 'member_id', as: 'member' });
+
+// 12. OrderRequest <-> OrderRequestItem
+OrderRequest.hasMany(OrderRequestItem, { foreignKey: 'order_request_id', as: 'items', onDelete: 'CASCADE' });
+OrderRequestItem.belongsTo(OrderRequest, { foreignKey: 'order_request_id', as: 'order_request' });
+
+// 13. Product <-> OrderRequestItem
+Product.hasMany(OrderRequestItem, { foreignKey: 'product_id', as: 'order_items' });
+OrderRequestItem.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
+
+// 14. OrderRequest <-> Sale
+OrderRequest.hasOne(Sale, { foreignKey: 'order_request_id', as: 'sale' });
+Sale.belongsTo(OrderRequest, { foreignKey: 'order_request_id', as: 'order_request' });
+
+// 15. User <-> OperationalExpense
+User.hasMany(OperationalExpense, { foreignKey: 'user_id', as: 'operational_expenses' });
+OperationalExpense.belongsTo(User, { foreignKey: 'user_id', as: 'recorded_by' });
+
 module.exports = {
   sequelize,
   User,
@@ -60,6 +83,9 @@ module.exports = {
   Sale,
   SaleItem,
   Member,
-  MemberPointHistory
+  MemberPointHistory,
+  OrderRequest,
+  OrderRequestItem,
+  OperationalExpense
 };
 
