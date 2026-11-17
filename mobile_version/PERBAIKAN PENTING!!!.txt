@@ -1,0 +1,9 @@
+PERBAIKAN PADA APLIKASI POS & INVENYORY SYSTEM
+
+WEBSITE :
+	- Membuat Fitur hitung biaya operasiional di halaman kelola profil
+	- membuat 2 opsi untuk menentukan satuan produk menggunakan Dropdown Scroll dan Input text
+
+MOBILE :
+	- Susun rapi bersih pada tampilan profil akun member POS & Inventory System website seperti informasi kontak dan kemanan akun (Username dan Ubah Password)
+	- Menyesuaikan nama aplikasi di halaman dashboardnya sesuai dengan nama perusahaan toko tersebut
